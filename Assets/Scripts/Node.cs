@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Node {
     public Vector3  position;
-    public int      f, g, h;
+    public float    f, g, h;
     public bool     isWalkable;
     public Node     parent;
     public Node[]   neighbours;
@@ -15,5 +15,15 @@ public class Node {
         h           = 0;
         isWalkable  = false;
         parent      = null;
+    }
+    public Node(int neighbourCount)
+    {
+        position = Vector3.zero;
+        f = 0;
+        g = 0;
+        h = 0;
+        isWalkable = false;
+        parent = null;
+        neighbours = new Node[neighbourCount];
     }
 }
