@@ -19,18 +19,38 @@ public class Pathfinding : MonoBehaviour {
 
     public Node endNode;
 
+    PathFindingThread pfThread;
+    int threadID = 0;
 	// Use this for initialization
 	void Start () {
         Graph g = new Graph(startPosition, width, height, neighbourCount, edgeLength);
         graphs.Add(g);
 
+       
+
+        
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	    if (Input.GetKeyDown(KeyCode.Space))
         {
-            StartCoroutine(SearchPath(graphs[0], startPosition, target.position));
+           // StartCoroutine(SearchPath(graphs[0], startPosition, target.position));
+            pfThread = new PathFindingThread();
+            pfThread.startPosition = startPosition;
+            pfThread.Id = threadID;
+            pfThread.endPosition = target.position;
+
+            pfThread.Start();
+            threadID++;
+        }
+        if (pfThread != null)
+        {
+            if (pfThread.Update())
+            {
+                // Alternative to the OnFinished callback
+                pfThread = null;
+            }
         }
 	}
     float CalculateHeuristic(Vector3 v1, Vector3 v2)
@@ -47,8 +67,8 @@ public class Pathfinding : MonoBehaviour {
 
     IEnumerator SearchPath(Graph g, Vector3 start, Vector3 end)
     {
-        List<Node> openSet      = new List<Node>();
-        List<Node> closedSet    = new List<Node>();
+        var openSet      = new List<Node>();
+        var closedSet    = new List<Node>();
 
         Node startNode          = g.GetNode(start);
         endNode                 = g.GetNode(end);
