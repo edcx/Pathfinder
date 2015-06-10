@@ -280,8 +280,9 @@ MonoBehaviour:
   height: 10
   neighbourCount: 4
   edgeLength: 1
-  drawGizmos: 0
+  drawGizmos: 1
   target: {fileID: 809141655}
+  path: []
 --- !u!4 &649266432
 Transform:
   m_ObjectHideFlags: 0

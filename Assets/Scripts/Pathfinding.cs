@@ -16,7 +16,7 @@ public class Pathfinding : MonoBehaviour {
     public Transform target;
 
     public List<Graph> graphs = new List<Graph>();
-
+    public List<Vector3> path = new List<Vector3>();
     public Node endNode;
 
     PathFindingThread pfThread;
@@ -25,9 +25,6 @@ public class Pathfinding : MonoBehaviour {
 	void Start () {
         Graph g = new Graph(startPosition, width, height, neighbourCount, edgeLength);
         graphs.Add(g);
-
-       
-
         
 	}
 	
@@ -35,36 +32,31 @@ public class Pathfinding : MonoBehaviour {
 	void Update () {
 	    if (Input.GetKeyDown(KeyCode.Space))
         {
-           // StartCoroutine(SearchPath(graphs[0], startPosition, target.position));
             pfThread = new PathFindingThread();
-            pfThread.startPosition = startPosition;
             pfThread.Id = threadID;
+            pfThread.callBackListener = this;
+            pfThread.startPosition = startPosition;
             pfThread.endPosition = target.position;
+            pfThread.width = width;
+            pfThread.height = height;
+            pfThread.neighbourCount = neighbourCount;
+            pfThread.graph = graphs[0];
 
+            pfThread.edgeLength = edgeLength;
             pfThread.Start();
             threadID++;
         }
-        if (pfThread != null)
+        /*if (pfThread != null)
         {
             if (pfThread.Update())
             {
                 // Alternative to the OnFinished callback
+                path = pfThread.path;
                 pfThread = null;
             }
-        }
+        }*/
 	}
-    float CalculateHeuristic(Vector3 v1, Vector3 v2)
-    {
-        return Mathf.Abs(v1.x - v2.x) + Mathf.Abs(v1.z - v2.z) + Mathf.Abs(v1.z - v2.z);
-    }
-    float CalculateCost(Node n, Node target)
-    {
-        float cost = 10;
-        if ((n.position - target.position).sqrMagnitude >=  edgeLength * edgeLength * 2)
-            cost = 14;
-        return cost;
-    }
-
+/*
     IEnumerator SearchPath(Graph g, Vector3 start, Vector3 end)
     {
         var openSet      = new List<Node>();
@@ -113,8 +105,8 @@ public class Pathfinding : MonoBehaviour {
 
         yield return null;
     }
-
-    List<Vector3> GetPath(Node n)
+*/
+    /*List<Vector3> GetPath(Node n)
     {
         List<Vector3> path = new List<Vector3>();
         if (n == null)
@@ -127,7 +119,7 @@ public class Pathfinding : MonoBehaviour {
         path.Add(n.position);
         return path;
 
-    }
+    }*/
 
     void OnDrawGizmos()
     {
@@ -142,7 +134,7 @@ public class Pathfinding : MonoBehaviour {
                 Gizmos.DrawCube(g.GetNodeAtIndex(i, j).position, new Vector3(0.2f, 0.2f, 0.2f));
             }
         }
-        List<Vector3> path = GetPath(endNode);
+       
         for (int i = 0; i < path.Count - 1; i++)
         {
             Gizmos.color = Color.cyan;
