@@ -10,6 +10,8 @@ public class Pathfinding : MonoBehaviour {
     public int height;
     public int neighbourCount = 4;
     public float edgeLength;
+    [Range(0f,1f)]
+    public float costModifier;
 
     public bool drawGizmos;
 
@@ -18,6 +20,10 @@ public class Pathfinding : MonoBehaviour {
     public List<Graph> graphs = new List<Graph>();
     public List<Vector3> path = new List<Vector3>();
     public Node endNode;
+
+
+    public List<Node> openSet = new List<Node>();
+    public List<Node> closedSet = new List<Node>();
 
     PathFindingThread pfThread;
     int threadID = 0;
@@ -40,6 +46,8 @@ public class Pathfinding : MonoBehaviour {
             pfThread.width = width;
             pfThread.height = height;
             pfThread.neighbourCount = neighbourCount;
+            pfThread.costModifier = costModifier;
+
             pfThread.graph = graphs[0];
 
             pfThread.edgeLength = edgeLength;
@@ -59,7 +67,7 @@ public class Pathfinding : MonoBehaviour {
 
     void OnDrawGizmos()
     {
-        if (!drawGizmos) return;
+        if (!drawGizmos || graphs.Count < 1) return;
 
         Gizmos.color = Color.red;
         Graph g = graphs[0];
@@ -75,6 +83,18 @@ public class Pathfinding : MonoBehaviour {
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawLine(path[i], path[i+1]);
+        }
+
+        for (int i = 0; i < openSet.Count; i++)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(openSet[i].position, Vector3.one * .5f);
+        }
+        for (int i = 0; i < closedSet.Count; i++)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireCube(closedSet[i].position, Vector3.one * .5f);
+
         }
     }
 }

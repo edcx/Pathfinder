@@ -42,14 +42,6 @@ public class MultiThread {
 
     protected virtual void OnFinished() { }
 
-    public virtual bool Update() {
-        if (IsDone) {
-            OnFinished();
-            return true;
-        }
-        return false;
-    }
-
     private void Run() {
         ThreadFunction();
         IsDone = true;
