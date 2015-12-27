@@ -13,7 +13,7 @@ public class Node {
         f           = 0; 
         g           = 0; 
         h           = 0;
-        isWalkable  = false;
+        isWalkable  = true;
         parent      = null;
     }
     public Node(int neighbourCount)
@@ -22,7 +22,7 @@ public class Node {
         f = 0;
         g = 0;
         h = 0;
-        isWalkable = false;
+        isWalkable = true;
         parent = null;
         neighbours = new Node[neighbourCount];
     }

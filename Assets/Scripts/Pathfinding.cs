@@ -16,6 +16,7 @@ public class Pathfinding : MonoBehaviour {
     public bool drawGizmos;
 
     public Transform target;
+    public Transform agent;
 
     public List<Graph> graphs = new List<Graph>();
     public List<Vector3> path = new List<Vector3>();
@@ -41,7 +42,7 @@ public class Pathfinding : MonoBehaviour {
             pfThread = new PathFindingThread();
             pfThread.Id = threadID;
             pfThread.callBackListener = this;
-            pfThread.startPosition = startPosition;
+            pfThread.startPosition = agent.position;
             pfThread.endPosition = target.position;
             pfThread.width = width;
             pfThread.height = height;
@@ -69,12 +70,15 @@ public class Pathfinding : MonoBehaviour {
     {
         if (!drawGizmos || graphs.Count < 1) return;
 
-        Gizmos.color = Color.red;
         Graph g = graphs[0];
         for (int i = 0; i < g.width; i++)
         {
             for (int j = 0; j < g.height; j++)
             {
+                Gizmos.color = Color.yellow;
+
+                if (!g.GetNodeAtIndex(i,j).isWalkable)
+                    Gizmos.color = Color.green;
                 Gizmos.DrawCube(g.GetNodeAtIndex(i, j).position, new Vector3(0.2f, 0.2f, 0.2f));
             }
         }

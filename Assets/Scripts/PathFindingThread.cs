@@ -61,7 +61,6 @@ public class PathFindingThread : MultiThread {
                 if (current.neighbours[i] == null || closedSet.Contains(current.neighbours[i]))
                     continue;
                 float tentativeGScore = current.g + CalculateCost(current, current.neighbours[i]);
-                UnityEngine.Debug.Log("Heuristic: " + CalculateHeuristic(startNode.position, endNode.position) + " Cost: " + tentativeGScore);
                 /*if (!openSet.Contains(current.neighbours[i]) || tentativeGScore < current.neighbours[i].g)
                 {
                     graph.UpdateNode(current, current.neighbours[i], tentativeGScore, CalculateHeuristic(current.position, current.neighbours[i].position));
@@ -153,9 +152,12 @@ public class PathFindingThread : MultiThread {
             return path;
         while (n.parent != null)
         {
+            UnityEngine.Debug.Log("Heuristic: " + n.f + " Cost: " + n.g);
+
             path.Add(n.position);
             n = n.parent;
         }
+        UnityEngine.Debug.Log("Heuristic: " + n.f + " Cost: " + n.g);
         path.Add(n.position);
         return path;
 

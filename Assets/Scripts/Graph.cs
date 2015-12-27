@@ -20,7 +20,8 @@ public class Graph {
         this.neighbourCount     = neighbourCount;
         this.edgeLength         = edgeLength;
 
-        GenerateEmptyNodes();
+        //GenerateEmptyNodes();
+        GenerateNotWalkableNodes();
     }
 
 
@@ -62,6 +63,7 @@ public class Graph {
         neighbour.parent = n;
         neighbour.f = neighbour.h + neighbour.g;
     }
+
     void GenerateEmptyNodes()
     {
         nodes = new Node[width][];
@@ -83,6 +85,31 @@ public class Graph {
             }
         }
     }
+
+    void GenerateNotWalkableNodes()
+    {
+        nodes = new Node[width][];
+        for (int i = 0; i < width; i++)
+        {
+            nodes[i] = new Node[height];
+            for (int j = 0; j < height; j++)
+            {
+                nodes[i][j] = new Node(neighbourCount);
+                nodes[i][j].position = startPosition + new Vector3(i, 0, j) * edgeLength;
+                if (j == 5 && i > (width * 0.1f) && i < (width * 0.75f))
+                    nodes[i][j].isWalkable = false;
+            }
+        }
+
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                SetNeighbours(nodes[i][j]);
+            }
+        }
+    }
+
     public void SetNeighbours(Node n)
     {
         int index = 0;
@@ -95,6 +122,8 @@ public class Graph {
                 int[] nodeIndex = GetIndexOf(n);
                 if (IsInBorders(nodeIndex[0] + i, nodeIndex[1] + j))
                 {
+                    if (!GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j).isWalkable) continue;
+
                     n.neighbours[index] = GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j);
                     index++;
                 }
