@@ -55,23 +55,27 @@ public class PathFindingThread : MultiThread {
             }
             openSet.RemoveAt(0);
             closedSet.Add(current);
-
+            //List<Node> neighbours = graph.GetNeighbours(current);
             for (int i = 0; i < neighbourCount; i++)
             {
                 if (current.neighbours[i] == null || closedSet.Contains(current.neighbours[i]))
                     continue;
                 float tentativeGScore = current.g + CalculateCost(current, current.neighbours[i]);
-                /*if (!openSet.Contains(current.neighbours[i]) || tentativeGScore < current.neighbours[i].g)
-                {
-                    graph.UpdateNode(current, current.neighbours[i], tentativeGScore, CalculateHeuristic(current.position, current.neighbours[i].position));
-                    if (!openSet.Contains(current.neighbours[i]))
-                        openSet.Add(current.neighbours[i]);
-                }*/
+
                 if (!openSet.Contains(current.neighbours[i]))
                     openSet.Add(current.neighbours[i]);
                 else if (tentativeGScore > current.neighbours[i].g)
                     continue;
                 graph.UpdateNode(current, current.neighbours[i], tentativeGScore, CalculateHeuristic(current.neighbours[i].position, endNode.position));
+                /*if (neighbours[i] == null || closedSet.Contains(neighbours[i]))
+                    continue;
+                float tentativeGScore = current.g + CalculateCost(current, neighbours[i]);
+
+                if (!openSet.Contains(neighbours[i]))
+                    openSet.Add(neighbours[i]);
+                else if (tentativeGScore > neighbours[i].g)
+                    continue;
+                graph.UpdateNode(current, neighbours[i], tentativeGScore, CalculateHeuristic(neighbours[i].position, endNode.position));*/
             }
             if (callBackListener != null)
             {

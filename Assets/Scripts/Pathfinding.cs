@@ -39,6 +39,8 @@ public class Pathfinding : MonoBehaviour {
 	void Update () {
 	    if (Input.GetKeyDown(KeyCode.Space))
         {
+            graphs[0].ClearGraphParentData();
+
             pfThread = new PathFindingThread();
             pfThread.Id = threadID;
             pfThread.callBackListener = this;

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Graph {
 
@@ -110,6 +111,28 @@ public class Graph {
         }
     }
 
+    public List<Node> GetNeighbours(Node n)
+    {
+        List<Node> neighbours = new List<Node>();
+        for (int i = -1; i < 2; i++)
+        {
+            for (int j = -1; j < 2; j++)
+            {
+                if ((i == 0 && j == 0) || (neighbourCount == 4 && Mathf.Abs(i) + Mathf.Abs(j) > 1))
+                    continue;
+                int[] nodeIndex = GetIndexOf(n);
+                if (IsInBorders(nodeIndex[0] + i, nodeIndex[1] + j))
+                {
+                    if (!GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j).isWalkable) continue;
+
+                    neighbours.Add(GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j));
+                }
+            }
+        }
+        return neighbours;
+
+    }
+
     public void SetNeighbours(Node n)
     {
         int index = 0;
@@ -139,6 +162,16 @@ public class Graph {
             {
                 nodes[i][j] = new Node();
                 nodes[i][j].position = startPosition + new Vector3(width, 0, height) * edgeLength;
+            }
+        }
+    }
+    public void ClearGraphParentData()
+    {
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                nodes[i][j].parent = null;
             }
         }
     }
