@@ -76,7 +76,6 @@ public class Pathfinding : MonoBehaviour {
             for (int j = 0; j < g.height; j++)
             {
                 Gizmos.color = Color.yellow;
-
                 if (!g.GetNodeAtIndex(i,j).isWalkable)
                     Gizmos.color = Color.green;
                 Gizmos.DrawCube(g.GetNodeAtIndex(i, j).position, new Vector3(0.2f, 0.2f, 0.2f));

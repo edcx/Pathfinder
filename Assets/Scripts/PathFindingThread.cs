@@ -71,7 +71,7 @@ public class PathFindingThread : MultiThread {
                     openSet.Add(current.neighbours[i]);
                 else if (tentativeGScore > current.neighbours[i].g)
                     continue;
-                graph.UpdateNode(current, current.neighbours[i], tentativeGScore, CalculateHeuristic(current.position, current.neighbours[i].position));
+                graph.UpdateNode(current, current.neighbours[i], tentativeGScore, CalculateHeuristic(current.neighbours[i].position, endNode.position));
             }
             if (callBackListener != null)
             {
@@ -125,7 +125,7 @@ public class PathFindingThread : MultiThread {
         //When D = 1 and D2 = 1, this is called the Chebyshev distance. When D = 1 and D2 = sqrt(2), this is called the octile distance
         var dx = Mathf.Abs(v1.x - v2.x);
         var dy = Mathf.Abs(v1.z - v2.z);
-
+        
         if (neighbourCount == 8) 
             return (dx + dy) - Mathf.Min(dx, dy);
 
@@ -152,12 +152,11 @@ public class PathFindingThread : MultiThread {
             return path;
         while (n.parent != null)
         {
-            UnityEngine.Debug.Log("Heuristic: " + n.f + " Cost: " + n.g);
-
+            //UnityEngine.Debug.Log("Heuristic: " + n.f + " Cost: " + n.g);
             path.Add(n.position);
             n = n.parent;
         }
-        UnityEngine.Debug.Log("Heuristic: " + n.f + " Cost: " + n.g);
+        //UnityEngine.Debug.Log("Heuristic: " + n.f + " Cost: " + n.g);
         path.Add(n.position);
         return path;
 

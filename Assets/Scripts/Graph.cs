@@ -96,7 +96,7 @@ public class Graph {
             {
                 nodes[i][j] = new Node(neighbourCount);
                 nodes[i][j].position = startPosition + new Vector3(i, 0, j) * edgeLength;
-                if (j == 5 && i > (width * 0.1f) && i < (width * 0.75f))
+                if (j == 10 && i > (width * 0.1f) && i < (width * 0.75f))
                     nodes[i][j].isWalkable = false;
             }
         }
