@@ -39,6 +39,11 @@ public class Graph {
     {
         return nodes[i][j];
     }
+
+    public Node GetNodeAtIndex(int i, int j, Graph g)
+    {
+        return g.nodes[i][j];
+    }
     public Node GetNode(Vector3 pos)
     {
         int i = (int)((pos.x - startPosition.x) / edgeLength);
@@ -64,6 +69,32 @@ public class Graph {
         neighbour.parent = n;
         neighbour.f = neighbour.h + neighbour.g;
     }
+
+
+    public Graph DeepCopy()
+    {
+        Graph other = (Graph) this.MemberwiseClone();
+        other.nodes = new Node[nodes.Length][];
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            other.nodes[i] = new Node[nodes[i].Length];
+            for (int j = 0; j < nodes[i].Length; j++)
+            {
+                other.nodes[i][j] = nodes[i][j].DeepCopy();
+            }
+        }
+
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                SetNeighbours(other.nodes[i][j], other);
+            }
+        }
+
+        return other; 
+    }
+
 
     void GenerateEmptyNodes()
     {
@@ -154,6 +185,27 @@ public class Graph {
         }
     }
 
+    public void SetNeighbours(Node n, Graph g)
+    {
+        int index = 0;
+        for (int i = -1; i < 2; i++)
+        {
+            for (int j = -1; j < 2; j++)
+            {
+                if ((i == 0 && j == 0) || (neighbourCount == 4 && Mathf.Abs(i) + Mathf.Abs(j) > 1))
+                    continue;
+                int[] nodeIndex = GetIndexOf(n);
+                if (IsInBorders(nodeIndex[0] + i, nodeIndex[1] + j))
+                {
+                    if (!GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j, g).isWalkable) continue;
+
+                    n.neighbours[index] = GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j, g);
+                    index++;
+                }
+            }
+        }
+    }
+
     public void ClearGraph()
     {
         for (int i = 0; i < width; i++)
@@ -165,6 +217,7 @@ public class Graph {
             }
         }
     }
+
     public void ClearGraphParentData()
     {
         for (int i = 0; i < width; i++)

@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System;
 
-public class PathFindingThread : MultiThread {
+public class PathfindingThread : MultiThread {
 
     private bool _isPathFound = false;
     private Stopwatch stopWatch;
@@ -56,6 +55,7 @@ public class PathFindingThread : MultiThread {
             openSet.RemoveAt(0);
             closedSet.Add(current);
             //List<Node> neighbours = graph.GetNeighbours(current);
+
             for (int i = 0; i < neighbourCount; i++)
             {
                 if (current.neighbours[i] == null || closedSet.Contains(current.neighbours[i]))

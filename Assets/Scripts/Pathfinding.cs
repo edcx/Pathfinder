@@ -26,7 +26,7 @@ public class Pathfinding : MonoBehaviour {
     public List<Node> openSet = new List<Node>();
     public List<Node> closedSet = new List<Node>();
 
-    PathFindingThread pfThread;
+    PathfindingThread pfThread;
     int threadID = 0;
 	// Use this for initialization
 	void Start () {
@@ -39,9 +39,12 @@ public class Pathfinding : MonoBehaviour {
 	void Update () {
 	    if (Input.GetKeyDown(KeyCode.Space))
         {
-            graphs[0].ClearGraphParentData();
+            //TODO: Rather than giving the actual graph data create a clone for multiple path requests
+            //graphs[0].ClearGraphParentData();
 
-            pfThread = new PathFindingThread();
+            Graph g = graphs[0];
+
+            pfThread = new PathfindingThread();
             pfThread.Id = threadID;
             pfThread.callBackListener = this;
             pfThread.startPosition = agent.position;
@@ -51,7 +54,7 @@ public class Pathfinding : MonoBehaviour {
             pfThread.neighbourCount = neighbourCount;
             pfThread.costModifier = costModifier;
 
-            pfThread.graph = graphs[0];
+            pfThread.graph = graphs[0].DeepCopy();
 
             pfThread.edgeLength = edgeLength;
             pfThread.Start();
@@ -80,7 +83,7 @@ public class Pathfinding : MonoBehaviour {
                 Gizmos.color = Color.yellow;
                 if (!g.GetNodeAtIndex(i,j).isWalkable)
                     Gizmos.color = Color.green;
-                Gizmos.DrawCube(g.GetNodeAtIndex(i, j).position, new Vector3(0.2f, 0.2f, 0.2f));
+                Gizmos.DrawCube(g.GetNodeAtIndex(i, j).position, Vector3.one * .5f);
             }
         }
        

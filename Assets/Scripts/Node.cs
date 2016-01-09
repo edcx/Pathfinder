@@ -26,4 +26,22 @@ public class Node {
         parent = null;
         neighbours = new Node[neighbourCount];
     }
+
+    public Node DeepCopy()
+    {
+        Node other = (Node)this.MemberwiseClone();
+
+        other.parent = null;
+        other.neighbours = new Node[neighbours.Length];
+
+        return other;
+    }
+
+    public string PrintNodeData()
+    {
+        string str = "Position: " + position.ToString() + " f: " + f + " g: " + g + " h: " + h + " isWalkable: " + isWalkable + " has parent " + (parent != null); 
+        return str;
+    }
+
+
 }
