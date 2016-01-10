@@ -22,7 +22,7 @@ public class PathfindingThread : MultiThread {
     public Vector3 startPosition;
     public Vector3 endPosition;
 
-    public Pathfinding callBackListener;
+    public Agent callBackListener;
 
     public List<Vector3> path = new List<Vector3>();
 

@@ -16,7 +16,7 @@ public class Pathfinding : MonoBehaviour {
     public bool drawGizmos;
 
     public Transform target;
-    public Transform agent;
+    //public Transform agent;
 
     public List<Graph> graphs = new List<Graph>();
     public List<Vector3> path = new List<Vector3>();
@@ -39,26 +39,11 @@ public class Pathfinding : MonoBehaviour {
 	void Update () {
 	    if (Input.GetKeyDown(KeyCode.Space))
         {
-            //TODO: Rather than giving the actual graph data create a clone for multiple path requests
+            //TODO: Rather than giving the actual graph data, create a clone for multiple path requests
             //graphs[0].ClearGraphParentData();
 
             Graph g = graphs[0];
 
-            pfThread = new PathfindingThread();
-            pfThread.Id = threadID;
-            pfThread.callBackListener = this;
-            pfThread.startPosition = agent.position;
-            pfThread.endPosition = target.position;
-            pfThread.width = width;
-            pfThread.height = height;
-            pfThread.neighbourCount = neighbourCount;
-            pfThread.costModifier = costModifier;
-
-            pfThread.graph = graphs[0].DeepCopy();
-
-            pfThread.edgeLength = edgeLength;
-            pfThread.Start();
-            threadID++;
         }
         /*if (pfThread != null)
         {
@@ -70,6 +55,25 @@ public class Pathfinding : MonoBehaviour {
             }
         }*/
 	}
+
+    public void RequestPath(Agent agent, Vector3 targetPos)
+    {
+        pfThread = new PathfindingThread();
+        pfThread.Id = threadID;
+        pfThread.callBackListener = agent;
+        pfThread.startPosition = agent.transform.position;
+        pfThread.endPosition = targetPos;
+        pfThread.width = width;
+        pfThread.height = height;
+        pfThread.neighbourCount = neighbourCount;
+        pfThread.costModifier = costModifier;
+
+        pfThread.graph = graphs[0].DeepCopy();
+
+        pfThread.edgeLength = edgeLength;
+        pfThread.Start();
+        threadID++;
+    }
 
     void OnDrawGizmos()
     {
@@ -87,22 +91,5 @@ public class Pathfinding : MonoBehaviour {
             }
         }
        
-        for (int i = 0; i < path.Count - 1; i++)
-        {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(path[i], path[i+1]);
-        }
-
-        for (int i = 0; i < openSet.Count; i++)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(openSet[i].position, Vector3.one * .5f);
-        }
-        for (int i = 0; i < closedSet.Count; i++)
-        {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireCube(closedSet[i].position, Vector3.one * .5f);
-
-        }
     }
 }
