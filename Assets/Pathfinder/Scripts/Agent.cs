@@ -15,12 +15,7 @@ namespace Assets.Pathfinder.Scripts
         public Transform target;
         public bool drawGizmos;
 
-        // Use this for initialization
-        void Start () {
-	
-        }
-	
-        // Update is called once per frame
+
         void Update () {
             if (Input.GetKeyDown(KeyCode.Space) && pf != null)
             {

@@ -7,7 +7,6 @@ namespace Assets.Pathfinder.Scripts
         public float    f, g, h;
         public bool     isWalkable;
         public Node     parent;
-        //public Node[]   neighbours;
 
         public Node() {
             position    = Vector3.zero;
@@ -25,7 +24,6 @@ namespace Assets.Pathfinder.Scripts
             h = 0;
             isWalkable = true;
             parent = null;
-            //neighbours = new Node[neighbourCount];
         }
 
         public Node DeepCopy()
@@ -33,7 +31,6 @@ namespace Assets.Pathfinder.Scripts
             Node other = (Node)this.MemberwiseClone();
 
             other.parent = null;
-            //other.neighbours = new Node[neighbours.Length];
 
             return other;
         }

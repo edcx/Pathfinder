@@ -29,31 +29,13 @@ namespace Assets.Pathfinder.Scripts
 
         PathfindingThread pfThread;
         int threadID = 0;
-        // Use this for initialization
+
         void Start () {
             Graph g = new Graph(startPosition, width, height, neighbourCount, edgeLength);
             graphs.Add(g);
         
         }
 	
-        // Update is called once per frame
-        void Update () {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                //TODO: Rather than giving the actual graph data, create a clone for multiple path requests
-                //graphs[0].ClearGraphParentData();
-
-            }
-            /*if (pfThread != null)
-        {
-            if (pfThread.Update())
-            {
-                // Alternative to the OnFinished callback
-                path = pfThread.path;
-                pfThread = null;
-            }
-        }*/
-        }
 
         public void RequestPath(Agent agent, Vector3 targetPos)
         {

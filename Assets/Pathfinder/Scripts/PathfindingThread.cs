@@ -46,7 +46,7 @@ namespace Assets.Pathfinder.Scripts
             while (openSet.Count > 0)
             {
 
-                openSet.Sort(delegate(Node x, Node y) { return x.f.CompareTo(y.f); });
+                openSet.Sort((x, y) => x.f.CompareTo(y.f));
                 Node current = openSet[0];
 
                 if (current == endNode)
@@ -70,15 +70,6 @@ namespace Assets.Pathfinder.Scripts
                     else if (tentativeGScore > neighbours[i].g)
                         continue;
                     graph.UpdateNode(current, neighbours[i], tentativeGScore, CalculateHeuristic(neighbours[i].position, endNode.position));
-                    /*if (neighbours[i] == null || closedSet.Contains(neighbours[i]))
-                    continue;
-                float tentativeGScore = current.g + CalculateCost(current, neighbours[i]);
-
-                if (!openSet.Contains(neighbours[i]))
-                    openSet.Add(neighbours[i]);
-                else if (tentativeGScore > neighbours[i].g)
-                    continue;
-                graph.UpdateNode(current, neighbours[i], tentativeGScore, CalculateHeuristic(neighbours[i].position, endNode.position));*/
                 }
                 if (callBackListener != null)
                 {
@@ -170,11 +161,9 @@ namespace Assets.Pathfinder.Scripts
                 return path;
             while (n.parent != null)
             {
-                //UnityEngine.Debug.Log("Heuristic: " + n.f + " Cost: " + n.g);
                 path.Add(n.position);
                 n = n.parent;
             }
-            //UnityEngine.Debug.Log("Heuristic: " + n.f + " Cost: " + n.g);
             path.Add(n.position);
             return path;
 

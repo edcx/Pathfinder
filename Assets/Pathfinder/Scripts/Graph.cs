@@ -85,14 +85,6 @@ namespace Assets.Pathfinder.Scripts
                 }
             }
 
-            /*for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                SetNeighbours(other.nodes[i][j], other);
-            }
-        }*/
-
             return other; 
         }
 
@@ -110,13 +102,6 @@ namespace Assets.Pathfinder.Scripts
                 }
             }
 
-            /*for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                SetNeighbours(nodes[i][j]);
-            }
-        }*/
         }
 
         void GenerateNotWalkableNodes()
@@ -134,14 +119,8 @@ namespace Assets.Pathfinder.Scripts
                 }
             }
 
-            /*for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                SetNeighbours(nodes[i][j]);
-            }
-        }*/
         }
+
         /// <summary>
         /// Gets walkable neighbour nodes
         /// </summary>
@@ -168,48 +147,6 @@ namespace Assets.Pathfinder.Scripts
             return neighbours;
 
         }
-
-        /*public void SetNeighbours(Node n)
-    {
-        int index = 0;
-        for (int i = -1; i < 2; i++)
-        {
-            for (int j = -1; j < 2; j++)
-            {
-                if ((i == 0 && j == 0) ||(neighbourCount == 4 && Mathf.Abs(i) + Mathf.Abs(j) > 1))
-                    continue;
-                int[] nodeIndex = GetIndexOf(n);
-                if (IsInBorders(nodeIndex[0] + i, nodeIndex[1] + j))
-                {
-                    if (!GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j).isWalkable) continue;
-
-                    n.neighbours[index] = GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j);
-                    index++;
-                }
-            }
-        }
-    }
-
-    public void SetNeighbours(Node n, Graph g)
-    {
-        int index = 0;
-        for (int i = -1; i < 2; i++)
-        {
-            for (int j = -1; j < 2; j++)
-            {
-                if ((i == 0 && j == 0) || (neighbourCount == 4 && Mathf.Abs(i) + Mathf.Abs(j) > 1))
-                    continue;
-                int[] nodeIndex = GetIndexOf(n);
-                if (IsInBorders(nodeIndex[0] + i, nodeIndex[1] + j))
-                {
-                    if (!GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j, g).isWalkable) continue;
-
-                    n.neighbours[index] = GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j, g);
-                    index++;
-                }
-            }
-        }
-    }*/
 
         
         public void ClearGraph()
