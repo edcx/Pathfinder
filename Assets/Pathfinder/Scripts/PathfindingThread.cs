@@ -17,64 +17,74 @@ namespace Assets.Pathfinder.Scripts
         public float costModifier;
 
         public Graph graph;
-        public Node endNode;
+        public Node targetNode;
+        public Node startNode;
     
 
     
         public Vector3 startPosition;
-        public Vector3 endPosition;
+        public Vector3 targetPosition;
 
         public Agent callBackListener;
 
         public List<Vector3> path = new List<Vector3>();
 
-        List<Node> openSet;
-        List<Node> closedSet;
+
+        //TODO: could use array for storing these with assigning nodeIndex to each node
+
 
         protected override void ThreadFunction()
         {
             stopWatch = new Stopwatch();
             stopWatch.Start();
-            openSet = new List<Node>();
-            closedSet = new List<Node>();
 
-            Node startNode = graph.GetNode(startPosition);
-            endNode = graph.GetNode(endPosition);
+
+            startNode = graph.GetNode(startPosition);
+            targetNode = graph.GetNode(targetPosition);
 
             _isPathFound = false;
-            openSet.Add(startNode);
-            while (openSet.Count > 0)
+            if (startNode.isWalkable && targetNode.isWalkable)
             {
+                List<Node> openSet = new List<Node>();
+                HashSet<Node> closedSet = new HashSet<Node>();
 
-                openSet.Sort((x, y) => x.f.CompareTo(y.f));
-                Node current = openSet[0];
-
-                if (current == endNode)
+                openSet.Add(startNode);
+                while (openSet.Count > 0)
                 {
-                    //TODO: Path found!
-                    _isPathFound = true;
-                    break;
-                }
-                openSet.RemoveAt(0);
-                closedSet.Add(current);
-                List<Node> neighbours = graph.GetNeighbours(current);
+                    Node currentNode = openSet[0];
+                    for (int i = 1; i < openSet.Count; i++)
+                    {
+                        if (openSet[i].f < currentNode.f || openSet[i].f == currentNode.f && openSet[i].h < currentNode.h)
+                        {
+                            currentNode = openSet[i];
+                        }
+                    }
+                    openSet.Remove(currentNode);
+                    closedSet.Add(currentNode);
 
-                for (int i = 0; i < neighbours.Count; i++)
-                {
-                    if (neighbours[i] == null || closedSet.Contains(neighbours[i]))
-                        continue;
-                    float tentativeGScore = current.g + CalculateCost(current, neighbours[i]);
+                    if (currentNode == targetNode)
+                    {
+                        _isPathFound = true;
+                        break;
+                    }
+                    //openSet.RemoveAt(0);
+                    foreach (Node neighbour in graph.GetNeighbours(currentNode))
+                    {
+                        if (!neighbour.isWalkable || closedSet.Contains(neighbour)) continue;
 
-                    if (!openSet.Contains(neighbours[i]))
-                        openSet.Add(neighbours[i]);
-                    else if (tentativeGScore > neighbours[i].g)
-                        continue;
-                    graph.UpdateNode(current, neighbours[i], tentativeGScore, CalculateHeuristic(neighbours[i].position, endNode.position));
-                }
-                if (callBackListener != null)
-                {
-                    callBackListener.openSet = openSet;
-                    callBackListener.closedSet = closedSet;
+                        int newMovementCostToNeighbour = currentNode.g + GetDistance(currentNode, neighbour) + neighbour.penalty;
+                        if (newMovementCostToNeighbour < neighbour.g || !openSet.Contains(neighbour))
+                        {
+                            neighbour.g = newMovementCostToNeighbour;
+                            neighbour.h = GetDistance(neighbour, targetNode);
+                            neighbour.parent = currentNode;
+                            if (!openSet.Contains(neighbour))
+                                openSet.Add(neighbour);
+                            //else
+                            //    openSet.UpdateItem(neighbour);
+                        }
+
+                    }
                 }
             }
             if (_isPathFound)
@@ -86,21 +96,66 @@ namespace Assets.Pathfinder.Scripts
             OnFinished();
 
         }
+        List<Vector3> RetracePath(Node startNode, Node endNode)
+        {
+            List<Node> path = new List<Node>();
+            Node currentNode = endNode;
 
-        protected override void OnFinished()
+            while (currentNode != startNode)
+            {
+                path.Add(currentNode);
+                currentNode = currentNode.parent;
+            }
+            path.Add(startNode);
+
+            List<Vector3> waypoints = SimplifyPath(path);
+            //Array.Reverse(waypoints);
+            waypoints.Reverse();
+            return waypoints;
+        }
+
+        List<Vector3> SimplifyPath(List<Node> path)
+        {
+            List<Vector3> waypoints = new List<Vector3>();
+            Vector2 directionOld = Vector2.zero;
+
+            for (int i = 1; i < path.Count; i++)
+            {
+                Vector2 directionNew = new Vector2(path[i - 1].x - path[i].x, path[i - 1].y - path[i].y);
+                //if (directionNew != directionOld)
+                {
+                    waypoints.Add(path[i].position);
+                }
+                directionOld = directionNew;
+            }
+            return waypoints;
+        }
+
+        int GetDistance(Node nodeA, Node nodeB)
+        {
+            int distX = Mathf.Abs(nodeA.x - nodeB.x);
+            int distY = Mathf.Abs(nodeA.y - nodeB.y);
+
+            if (distX > distY)
+                return 14 * distY + 10 * (distX - distY);
+
+            return 14 * distX + 10 * (distY - distX);
+        }
+
+        protected void OnFinished()
         {
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;
             UnityEngine.Debug.Log(">>> PathFinding" + " completed in " + ts.TotalMilliseconds + "ms!");
             if (_isPathFound)
-                path = GetPath(endNode);
+                path = RetracePath(startNode, targetNode);
             if (callBackListener != null)
             {
                 callBackListener.path = path;
-
             }
             Abort();
         }
+
 
 
         float CalculateDistance2D(Vector3 v1, Vector3 v2)

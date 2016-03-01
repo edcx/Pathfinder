@@ -7,27 +7,96 @@ namespace Assets.Pathfinder.Scripts
 
         public Vector3 startPosition;
 
+        public LayerMask unwalkableMask;
         public int width;
         public int height;
         public int neighbourCount = 4;
         public float edgeLength;
 
-        private Node[][] nodes;
+        public Node[,] grid;
 
-        public Graph(Vector3 startPosition, int width, int height, int neighbourCount, float edgeLength)
+        private Vector2 gridWorldSize;
+        private float nodeRadius;
+
+
+        public Graph(Vector3 startPosition, int width, int height, int neighbourCount, float edgeLength, LayerMask unwalkableMask)
         {
             this.startPosition      = startPosition;
             this.width              = width;
             this.height             = height;
             this.neighbourCount     = neighbourCount;
             this.edgeLength         = edgeLength;
+            this.unwalkableMask     = unwalkableMask;
+
+            nodeRadius = edgeLength*.5f;
+            gridWorldSize = new Vector2(width,height) * edgeLength;
+            
+            CreateGrid();
 
             //GenerateEmptyNodes();
-            GenerateNotWalkableNodes();
+            //GenerateNotWalkableNodes();
+        }
+
+        void CreateGrid()
+        {
+            grid = new Node[width, height];
+            Vector3 worldBottomLeft = startPosition;
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * edgeLength + nodeRadius) + Vector3.forward * (y * edgeLength + nodeRadius);
+                    bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius, unwalkableMask));
+
+                    int movementPenalty = 0;
+
+                    if (walkable)
+                    {
+                        // Apply penalty
+                    }
+
+                    grid[x, y] = new Node(worldPoint, walkable, x, y, movementPenalty);
+                }
+            }
+        }
+
+        public List<Node> GetNeighbours(Node node)
+        {
+            List<Node> neighbours = new List<Node>();
+
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    if (x == 0 && y == 0) continue;
+
+                    int xIndex = node.x + x;
+                    int yIndex = node.y + y;
+
+                    if (xIndex >= 0 && xIndex < width && yIndex >= 0 && yIndex < height)
+                        neighbours.Add(grid[xIndex, yIndex]);
+                }
+            }
+
+            return neighbours;
+        }
+
+        public Node GetNode(Vector3 worldPosition)
+        {
+            float percentX = (worldPosition.x + gridWorldSize.x * .5f) / gridWorldSize.x;
+            float percentY = (worldPosition.z + gridWorldSize.y * .5f) / gridWorldSize.y;
+
+            percentX = Mathf.Clamp01(percentX);
+            percentY = Mathf.Clamp01(percentY);
+
+            int x = Mathf.RoundToInt((width - 1) * percentX);
+            int y = Mathf.RoundToInt((height - 1) * percentY);
+
+            return grid[x, y];
         }
 
 
-
+        /*
         bool IsInBorders(int i, int j)
         {
             if (i < 0 || i > width - 1) return false;
@@ -38,18 +107,18 @@ namespace Assets.Pathfinder.Scripts
 
         public Node GetNodeAtIndex(int i, int j)
         {
-            return nodes[i][j];
+            return nodes[i,j];
         }
 
         public Node GetNodeAtIndex(int i, int j, Graph g)
         {
-            return g.nodes[i][j];
+            return g.nodes[i,j];
         }
         public Node GetNode(Vector3 pos)
         {
             int i = (int)((pos.x - startPosition.x) / edgeLength);
             int j = (int)((pos.z - startPosition.z) / edgeLength);
-            return nodes[i][j];
+            return nodes[i,j];
         }
         public int[] GetIndexOf(Node n)
         { 
@@ -58,6 +127,7 @@ namespace Assets.Pathfinder.Scripts
             int[] result = {i,j};
             return result;
         }
+ 
         /// <summary>
         /// Updates the node.
         /// </summary>
@@ -69,56 +139,6 @@ namespace Assets.Pathfinder.Scripts
             neighbour.h = h;
             neighbour.parent = n;
             neighbour.f = neighbour.h + neighbour.g;
-        }
-
-
-        public Graph DeepCopy()
-        {
-            Graph other = (Graph) this.MemberwiseClone();
-            other.nodes = new Node[nodes.Length][];
-            for (int i = 0; i < nodes.Length; i++)
-            {
-                other.nodes[i] = new Node[nodes[i].Length];
-                for (int j = 0; j < nodes[i].Length; j++)
-                {
-                    other.nodes[i][j] = nodes[i][j].DeepCopy();
-                }
-            }
-
-            return other; 
-        }
-
-
-        void GenerateEmptyNodes()
-        {
-            nodes = new Node[width][];
-            for (int i = 0; i < width; i++)
-            { 
-                nodes[i] = new Node[height];
-                for (int j = 0; j < height; j++)
-                {
-                    nodes[i][j] = new Node(neighbourCount);
-                    nodes[i][j].position = startPosition + new Vector3(i, 0, j) * edgeLength;
-                }
-            }
-
-        }
-
-        void GenerateNotWalkableNodes()
-        {
-            nodes = new Node[width][];
-            for (int i = 0; i < width; i++)
-            {
-                nodes[i] = new Node[height];
-                for (int j = 0; j < height; j++)
-                {
-                    nodes[i][j] = new Node(neighbourCount);
-                    nodes[i][j].position = startPosition + new Vector3(i, 0, j) * edgeLength;
-                    if (j == 10 && i > (width * 0.1f) && i < (width * 0.75f))
-                        nodes[i][j].isWalkable = false;
-                }
-            }
-
         }
 
         /// <summary>
@@ -138,8 +158,6 @@ namespace Assets.Pathfinder.Scripts
                     int[] nodeIndex = GetIndexOf(n);
                     if (IsInBorders(nodeIndex[0] + i, nodeIndex[1] + j))
                     {
-                        if (!GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j).isWalkable) continue;
-
                         neighbours.Add(GetNodeAtIndex(nodeIndex[0] + i, nodeIndex[1] + j));
                     }
                 }
@@ -148,6 +166,55 @@ namespace Assets.Pathfinder.Scripts
 
         }
 
+
+        */
+
+        public Graph DeepCopy()
+        {
+            Graph other = (Graph) this.MemberwiseClone();
+            other.grid = new Node[width, height];
+            for (int i = 0; i < grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < grid.GetLength(1); j++)
+                {
+                    other.grid[i,j] = grid[i,j].DeepCopy();
+                }
+            }
+
+            return other; 
+        }
+
+
+        void GenerateEmptyNodes()
+        {
+            grid = new Node[width, height];
+            for (int i = 0; i < width; i++)
+            { 
+                for (int j = 0; j < height; j++)
+                {
+                    grid[i, j] = new Node(startPosition + new Vector3(i, 0, j) * edgeLength);
+                }
+            }
+
+        }
+
+        void GenerateNotWalkableNodes()
+        {
+            grid = new Node[width,height];
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    grid[i,j] = new Node(startPosition + new Vector3(i, 0, j) * edgeLength);
+                    if (j == 10 && i > (width * 0.1f) && i < (width * 0.75f))
+                        grid[i,j].isWalkable = false;
+                }
+            }
+
+        }
+
+
+
         
         public void ClearGraph()
         {
@@ -155,8 +222,7 @@ namespace Assets.Pathfinder.Scripts
             {
                 for (int j = 0; j < height; j++)
                 {
-                    nodes[i][j] = new Node();
-                    nodes[i][j].position = startPosition + new Vector3(width, 0, height) * edgeLength;
+                    grid[i,j] = new Node(startPosition + new Vector3(width, 0, height) * edgeLength);
                 }
             }
         }
@@ -170,7 +236,7 @@ namespace Assets.Pathfinder.Scripts
             {
                 for (int j = 0; j < height; j++)
                 {
-                    nodes[i][j].parent = null;
+                    grid[i,j].parent = null;
                 }
             }
         }
