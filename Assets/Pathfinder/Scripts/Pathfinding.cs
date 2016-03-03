@@ -13,6 +13,7 @@ namespace Assets.Pathfinder.Scripts
         public int height;
         public int neighbourCount = 4;
         public float edgeLength;
+        public float agentHeight;
         [Range(0f,1f)]
         public float costModifier;
 
@@ -36,7 +37,7 @@ namespace Assets.Pathfinder.Scripts
         int threadID = 0;
 
         void Start () {
-            Graph g = new Graph(startPosition, width, height, neighbourCount, edgeLength, unwalkableMask, regions);
+            Graph g = new Graph(startPosition, width, height, neighbourCount, edgeLength, agentHeight, unwalkableMask, regions);
             graphs.Add(g);
 
             //Create Pathfinder

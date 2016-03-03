@@ -19,7 +19,7 @@ namespace Assets.Pathfinder.Scripts
         public int height;
         public int neighbourCount = 4;
         public float edgeLength;
-
+        public float agentHeight = 2;
         public Node[,] grid;
 
         public Region[] walkableRegions;
@@ -29,7 +29,7 @@ namespace Assets.Pathfinder.Scripts
         private float nodeRadius;
 
 
-        public Graph(Vector3 startPosition, int width, int height, int neighbourCount, float edgeLength, LayerMask unwalkableMask, Region[] walkableRegions)
+        public Graph(Vector3 startPosition, int width, int height, int neighbourCount, float edgeLength, float agentHeight, LayerMask unwalkableMask, Region[] walkableRegions)
         {
             this.startPosition      = startPosition;
             this.width              = width;
@@ -37,7 +37,8 @@ namespace Assets.Pathfinder.Scripts
             this.neighbourCount     = neighbourCount;
             this.edgeLength         = edgeLength;
             this.unwalkableMask     = unwalkableMask;
-            this.walkableRegions            = walkableRegions;
+            this.walkableRegions    = walkableRegions;
+            this.agentHeight        = agentHeight;
 
             nodeRadius = edgeLength*.5f;
             gridWorldSize = new Vector2(width,height) * edgeLength;
@@ -61,7 +62,7 @@ namespace Assets.Pathfinder.Scripts
                 for (int y = 0; y < height; y++)
                 {
                     Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * edgeLength + nodeRadius) + Vector3.forward * (y * edgeLength + nodeRadius);
-                    bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius, unwalkableMask));
+                    bool walkable = !(Physics.CheckCapsule(worldPoint, worldPoint + Vector3.up * agentHeight, nodeRadius, unwalkableMask));
 
                     int movementPenalty = 0;
 
