@@ -2,13 +2,15 @@
 
 namespace Assets.Pathfinder.Scripts
 {
-    public class Node {
+    public class Node : IHeapItem<Node>{
         public Vector3  position;
         public int      g, h;
         public int      x, y;
         public int      penalty;
         public bool     isWalkable;
         public Node     parent;
+
+        private int heapIndex;
 
         public int f 
         {
@@ -40,6 +42,18 @@ namespace Assets.Pathfinder.Scripts
         }
 
 
+        public int CompareTo(Node other)
+        {
+            int compare = f.CompareTo(other.f);
+            if (compare == 0)
+                compare = h.CompareTo(other.h);
+            return -compare;
+        }
 
+        public int HeapIndex
+        {
+            get{ return heapIndex; }
+            set { heapIndex = value; }
+        }
     }
 }

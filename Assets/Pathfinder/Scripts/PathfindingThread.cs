@@ -45,21 +45,13 @@ namespace Assets.Pathfinder.Scripts
             _isPathFound = false;
             if (startNode.isWalkable && targetNode.isWalkable)
             {
-                List<Node> openSet = new List<Node>();
+                Heap<Node> openSet = new Heap<Node>(graph.width * graph.height);
                 HashSet<Node> closedSet = new HashSet<Node>();
 
                 openSet.Add(startNode);
                 while (openSet.Count > 0)
                 {
-                    Node currentNode = openSet[0];
-                    for (int i = 1; i < openSet.Count; i++)
-                    {
-                        if (openSet[i].f < currentNode.f || openSet[i].f == currentNode.f && openSet[i].h < currentNode.h)
-                        {
-                            currentNode = openSet[i];
-                        }
-                    }
-                    openSet.Remove(currentNode);
+                    Node currentNode = openSet.RemoveFirst();
                     closedSet.Add(currentNode);
 
                     if (currentNode == targetNode)
@@ -67,7 +59,6 @@ namespace Assets.Pathfinder.Scripts
                         _isPathFound = true;
                         break;
                     }
-                    //openSet.RemoveAt(0);
                     foreach (Node neighbour in graph.GetNeighbours(currentNode))
                     {
                         if (!neighbour.isWalkable || closedSet.Contains(neighbour)) continue;
@@ -80,8 +71,8 @@ namespace Assets.Pathfinder.Scripts
                             neighbour.parent = currentNode;
                             if (!openSet.Contains(neighbour))
                                 openSet.Add(neighbour);
-                            //else
-                            //    openSet.UpdateItem(neighbour);
+                            else
+                                openSet.UpdateItem(neighbour);
                         }
 
                     }

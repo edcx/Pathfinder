@@ -7,10 +7,29 @@ using Debug = UnityEngine.Debug;
 
 namespace Assets.Pathfinder.Scripts
 {
-    public class Pathfinder
+    public class Pathfinder : MonoBehaviour
     {
 
-        private bool _isPathFound = false;
+        struct PathRequest
+        {
+            public Vector3 pathStart;
+            public Vector3 pathEnd;
+            public Action<Vector3[], bool> callback;
+
+            public PathRequest(Vector3 _start, Vector3 _end, Action<Vector3[], bool> _callback)
+            {
+                pathStart = _start;
+                pathEnd = _end;
+                callback = _callback;
+            }
+        }
+
+        Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
+        private PathRequest currentPathRequest;
+
+        private bool isProcessingPath;
+
+
         private Stopwatch stopWatch;
 
         public int width;
@@ -21,56 +40,75 @@ namespace Assets.Pathfinder.Scripts
 
         public Graph graph;
 
+        //public List<Vector3> path = new List<Vector3>();
 
+        private static Pathfinder instance;
 
-        public Vector3 startPosition;
-        public Vector3 targetPosition;
+        public Pathfinder()
+        {
+            instance = this;
 
-        public Agent callBackListener;
+        }
 
-        public List<Vector3> path = new List<Vector3>();
+        public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
+        {
+            PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback);
+            instance.pathRequestQueue.Enqueue(newRequest);
+            instance.TryProcessNext();
+        }
 
+        public static int ReturnQueuedRequestCount()
+        {
+            return instance.pathRequestQueue.Count;
+        }
+        void TryProcessNext()
+        {
+            if (!isProcessingPath && pathRequestQueue.Count > 0)
+            {
+                currentPathRequest = pathRequestQueue.Dequeue();
+                isProcessingPath = true;
+                StartCoroutine(CalculatePath(currentPathRequest.pathStart, currentPathRequest.pathEnd));
+                //IEnumerator e = CalculatePath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
+                //while (e.MoveNext()){ }
 
-        //TODO: could use array for storing these with assigning nodeIndex to each node
-        List<Node> openSet;
-        List<Node> closedSet;
+            }
+        }
 
+        public void FinishedProcessingPath(Vector3[] path, bool success)
+        {
+            currentPathRequest.callback(path, success);
+            isProcessingPath = false;
+            TryProcessNext();
+        }
 
-        public void CalculatePath()
+        public IEnumerator CalculatePath(Vector3 startPosition, Vector3 targetPosition)
         {
             stopWatch = new Stopwatch();
             stopWatch.Start();
 
+            Vector3[] waypoints = new Vector3[0];
 
             Node startNode = graph.GetNode(startPosition);
             Node targetNode = graph.GetNode(targetPosition);
 
-            _isPathFound = false;
+            bool isPathFound = false;
             if (startNode.isWalkable && targetNode.isWalkable)
             {
-                openSet = new List<Node>();
-                closedSet = new List<Node>();
+                Heap<Node> openSet = new Heap<Node>(graph.width * graph.height);
+                HashSet<Node> closedSet = new HashSet<Node>();
 
                 openSet.Add(startNode);
                 while (openSet.Count > 0)
                 {
-                    Node currentNode = openSet[0];
-                    for (int i = 1; i < openSet.Count; i++)
-                    {
-                        if (openSet[i].f < currentNode.f || openSet[i].f == currentNode.f && openSet[i].h < currentNode.h)
-                        {
-                            currentNode = openSet[i];
-                        }
-                    }
-                    openSet.Remove(currentNode);
+                    Node currentNode = openSet.RemoveFirst();
                     closedSet.Add(currentNode);
 
                     if (currentNode == targetNode)
                     {
-                        _isPathFound = true;
+                        isPathFound = true;
                         break;
                     }
-                    //openSet.RemoveAt(0);
+ 
                     foreach (Node neighbour in graph.GetNeighbours(currentNode))
                     {
                         if (!neighbour.isWalkable || closedSet.Contains(neighbour)) continue;
@@ -83,8 +121,8 @@ namespace Assets.Pathfinder.Scripts
                             neighbour.parent = currentNode;
                             if (!openSet.Contains(neighbour))
                                 openSet.Add(neighbour);
-                            //else
-                            //    openSet.UpdateItem(neighbour);
+                            else
+                                openSet.UpdateItem(neighbour);
                         }
 
                     }
@@ -92,18 +130,22 @@ namespace Assets.Pathfinder.Scripts
                 }
             }
 
-            
-            if (_isPathFound)
+            if (isPathFound)
             {
-                //UnityEngine.Debug.Log("Path found!");
+                waypoints = RetracePath(startNode, targetNode);
             }
             else
                 UnityEngine.Debug.Log("Search path failed!");
-            OnFinished(startNode, targetNode);
+            stopWatch.Stop();
+            TimeSpan ts = stopWatch.Elapsed;
+            //UnityEngine.Debug.Log(">>> PathFinding" + " completed in " + ts.TotalMilliseconds + "ms!");
 
+            yield return null;
+
+            FinishedProcessingPath(waypoints, isPathFound);
         }
 
-        List<Vector3> RetracePath(Node startNode, Node endNode)
+        Vector3[] RetracePath(Node startNode, Node endNode)
         {
             List<Node> path = new List<Node>();
             Node currentNode = endNode;
@@ -115,16 +157,16 @@ namespace Assets.Pathfinder.Scripts
             }
             path.Add(startNode);
 
-            List<Vector3> waypoints = SimplifyPath(path);
-            //Array.Reverse(waypoints);
-            waypoints.Reverse();
+            Vector3[] waypoints = SimplifyPath(path);
+            Array.Reverse(waypoints);
             return waypoints;
         }
 
-        List<Vector3> SimplifyPath(List<Node> path)
+        Vector3[] SimplifyPath(List<Node> path)
         {
             List<Vector3> waypoints = new List<Vector3>();
             Vector2 directionOld = Vector2.zero;
+            waypoints.Add(path[0].position);
 
             for (int i = 1; i < path.Count; i++)
             {
@@ -135,7 +177,7 @@ namespace Assets.Pathfinder.Scripts
                 }
                 directionOld = directionNew;
             }
-            return waypoints;
+            return waypoints.ToArray();
         }
 
         int GetDistance(Node nodeA, Node nodeB)
@@ -149,88 +191,10 @@ namespace Assets.Pathfinder.Scripts
             return 14 * distX + 10 * (distY - distX);
         }
 
-        protected void OnFinished(Node startNode, Node endNode)
-        {
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            UnityEngine.Debug.Log(">>> PathFinding" + " completed in " + ts.TotalMilliseconds + "ms!");
-            if (_isPathFound)
-                path = RetracePath(startNode, endNode);
-            if (callBackListener != null)
-            {
-                callBackListener.path = path;
-
-            }
-        }
-
-
         float CalculateDistance2D(Vector3 v1, Vector3 v2)
         {
             return Vector2.Distance(new Vector2(v1.x, v1.z), new Vector2(v2.z, v2.z));
         }
-
-        /// <summary>
-        /// Calculates heuristic value for A*
-        /// </summary>
-        /// <param name="v1"></param>
-        /// <param name="v2"></param>
-        /// <returns></returns>
-        float CalculateHeuristic(Vector3 v1, Vector3 v2)
-        {
-            //Manhattan Distance
-            //dx = abs(node.x - goal.x)
-            //dy = abs(node.y - goal.y)
-            //return D * (dx + dy)         ----> Choose D as the lowest cost between adjacent squares
-
-            // Diagonal Distance
-            //dx = abs(node.x - goal.x)
-            //dy = abs(node.y - goal.y)
-            //return D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
-
-            //When D = 1 and D2 = 1, this is called the Chebyshev distance. When D = 1 and D2 = sqrt(2), this is called the octile distance
-            var dx = Mathf.Abs(v1.x - v2.x);
-            var dy = Mathf.Abs(v1.z - v2.z);
-
-            if (neighbourCount == 8)
-                return (dx + dy) - Mathf.Min(dx, dy);
-
-            return (dx + dy);
-
-            //return Mathf.Abs(v1.x - v2.x) + Mathf.Abs(v1.z - v2.z) + Mathf.Abs(v1.z - v2.z);
-        }
-
-        float CalculateCost(Node n, Node target)
-        {
-
-            // g'(n) = 1 + alpha * (g(n) - 1)
-            float cost = edgeLength;
-            if ((n.position - target.position).sqrMagnitude >= edgeLength * edgeLength * 2)
-                cost = edgeLength * 1.4f;
-            return cost;
-            //return edgeLength + costModifier * (cost - edgeLength);
-        }
-
-        /// <summary>
-        /// Traces back to start node to get found path
-        /// </summary>
-        /// <param name="n"></param>
-        /// <returns>List of positions on the path</returns>
-        List<Vector3> GetPath(Node n)
-        {
-            List<Vector3> path = new List<Vector3>();
-            if (n == null)
-                return path;
-            while (n.parent != null)
-            {
-                path.Add(n.position);
-                n = n.parent;
-            }
-            path.Add(n.position);
-            return path;
-
-        }
-
-
 
     }
 }

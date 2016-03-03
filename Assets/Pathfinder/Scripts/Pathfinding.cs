@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Pathfinder.Scripts
@@ -15,6 +16,7 @@ namespace Assets.Pathfinder.Scripts
         [Range(0f,1f)]
         public float costModifier;
 
+        public Graph.Region[] regions;
 
         public Transform target;
 
@@ -29,33 +31,32 @@ namespace Assets.Pathfinder.Scripts
         public bool UseMultiThread = false;
         public bool drawGizmos;
 
-
+        private Pathfinder pathfinder;
         PathfindingThread pfThread;
         int threadID = 0;
-        private GameObject graphContainer;
+
         void Start () {
-            Graph g = new Graph(startPosition, width, height, neighbourCount, edgeLength, unwalkableMask);
+            Graph g = new Graph(startPosition, width, height, neighbourCount, edgeLength, unwalkableMask, regions);
             graphs.Add(g);
 
-            graphContainer = new GameObject("Graph");
-            for (int i = 0; i < graphs[0].grid.GetLength(0); i++)
-            {
-                for (int j = 0; j < graphs[0].grid.GetLength(1); j++)
-                {
-                    GameObject node = new GameObject(i + "x" + j);
-                    node.transform.parent = graphContainer.transform;
-                    node.transform.position = graphs[0].grid[i, j].position;
-                    BoxCollider collider = node.AddComponent<BoxCollider>();
-                    collider.size = Vector3.one * edgeLength;
-                    NodeDisplayer nd = node.AddComponent<NodeDisplayer>();
+            //Create Pathfinder
+            Profiler.BeginSample("pf");
+            //pathfinder = new Pathfinder();
+            pathfinder = GetComponent<Pathfinder>();
 
-                }
-            }
-
+            pathfinder.width = width;
+            pathfinder.height = height;
+            pathfinder.neighbourCount = neighbourCount;
+            pathfinder.costModifier = costModifier;
+            Profiler.EndSample();
+            Profiler.BeginSample("Graph Copy");
+            pathfinder.graph = graphs[0];
+            Profiler.EndSample();
+            pathfinder.edgeLength = edgeLength;
         }
-	
 
-        public void RequestPath(Agent agent, Vector3 targetPos)
+
+        public void RequestPath(Agent agent, Vector3 targetPos, Action<Vector3[], bool> callback = null)
         {
             if (UseMultiThread)
             {
@@ -81,39 +82,11 @@ namespace Assets.Pathfinder.Scripts
                 threadID++;
                 return;
             }
-            Profiler.BeginSample("pf");
-            Pathfinder pf = new Pathfinder();
-            pf.callBackListener = agent;
-            pf.startPosition = agent.transform.position;
-            pf.targetPosition = targetPos;
-            pf.width = width;
-            pf.height = height;
-            pf.neighbourCount = neighbourCount;
-            pf.costModifier = costModifier;
-            Profiler.EndSample();
-            Profiler.BeginSample("Graph Copy");
-            pf.graph = graphs[0];
-            Profiler.EndSample();
-            pf.edgeLength = edgeLength;
+            
 
             Profiler.BeginSample("Calculate");
-            pf.CalculatePath();
+            Pathfinder.RequestPath(agent.transform.position, targetPos, callback);
             Profiler.EndSample();
-
-            for (int i = 0; i < graphs[0].grid.GetLength(0); i++)
-            {
-                for (int j = 0; j < graphs[0].grid.GetLength(1); j++)
-                {
-                    Transform node = graphContainer.transform.FindChild(i + "x" + j);
-                    NodeDisplayer nd = node.GetComponent<NodeDisplayer>();
-                    nd.f = graphs[0].grid[i, j].f;
-                    nd.g = graphs[0].grid[i, j].g;
-                    nd.h = graphs[0].grid[i, j].h;
-                    nd.position = graphs[0].grid[i, j].position;
-                }
-            }
-
-            return;
 
         }
 

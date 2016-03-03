@@ -1,9 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Pathfinder.Scripts
 {
     public class Graph {
+        [Serializable]
+        public struct Region
+        {
+            public LayerMask regionMask;
+            public int penalty;
+        }
 
         public Vector3 startPosition;
 
@@ -15,11 +22,14 @@ namespace Assets.Pathfinder.Scripts
 
         public Node[,] grid;
 
+        public Region[] walkableRegions;
+        private LayerMask walkableMask;
+        private Dictionary<int, int> walkableRegionsDict = new Dictionary<int, int>(); 
         private Vector2 gridWorldSize;
         private float nodeRadius;
 
 
-        public Graph(Vector3 startPosition, int width, int height, int neighbourCount, float edgeLength, LayerMask unwalkableMask)
+        public Graph(Vector3 startPosition, int width, int height, int neighbourCount, float edgeLength, LayerMask unwalkableMask, Region[] walkableRegions)
         {
             this.startPosition      = startPosition;
             this.width              = width;
@@ -27,14 +37,19 @@ namespace Assets.Pathfinder.Scripts
             this.neighbourCount     = neighbourCount;
             this.edgeLength         = edgeLength;
             this.unwalkableMask     = unwalkableMask;
+            this.walkableRegions            = walkableRegions;
 
             nodeRadius = edgeLength*.5f;
             gridWorldSize = new Vector2(width,height) * edgeLength;
-            
-            CreateGrid();
 
-            //GenerateEmptyNodes();
-            //GenerateNotWalkableNodes();
+            foreach (var region in walkableRegions)
+            {
+                walkableMask.value |= region.regionMask.value;
+                walkableRegionsDict.Add((int)Mathf.Log(region.regionMask, 2), region.penalty);
+
+            }
+
+            CreateGrid();
         }
 
         void CreateGrid()
@@ -53,6 +68,9 @@ namespace Assets.Pathfinder.Scripts
                     if (walkable)
                     {
                         // Apply penalty
+                        RaycastHit hit;
+                        if (Physics.Raycast(worldPoint + Vector3.up*50f, Vector3.down, out hit, 100f, walkableMask))
+                            walkableRegionsDict.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
                     }
 
                     grid[x, y] = new Node(worldPoint, walkable, x, y, movementPenalty);
