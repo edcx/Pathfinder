@@ -102,7 +102,7 @@ namespace Assets.Pathfinder.Scripts
                 {
                     Gizmos.color = Color.yellow;
                     if (!g.grid[i,j].isWalkable)
-                        Gizmos.color = Color.green;
+                        Gizmos.color = Color.red;
                     Gizmos.DrawCube(g.grid[i, j].position, Vector3.one * .5f);
                     
                 }

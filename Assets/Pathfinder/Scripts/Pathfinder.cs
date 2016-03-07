@@ -166,17 +166,18 @@ namespace Assets.Pathfinder.Scripts
         {
             List<Vector3> waypoints = new List<Vector3>();
             Vector2 directionOld = Vector2.zero;
-            waypoints.Add(path[0].position);
 
             for (int i = 1; i < path.Count; i++)
             {
                 Vector2 directionNew = new Vector2(path[i - 1].x - path[i].x, path[i - 1].y - path[i].y);
-                //if (directionNew != directionOld)
+                if (directionNew != directionOld)
                 {
                     waypoints.Add(path[i].position);
                 }
                 directionOld = directionNew;
             }
+            waypoints.Add(path[path.Count - 1].position);
+
             return waypoints.ToArray();
         }
 
