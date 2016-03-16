@@ -156,9 +156,9 @@ namespace Assets.Pathfinder.Scripts
                 currentNode = currentNode.parent;
             }
             path.Add(startNode);
-
+            path.Reverse();
             Vector3[] waypoints = SimplifyPath(path);
-            Array.Reverse(waypoints);
+            //Array.Reverse(waypoints);
             return waypoints;
         }
 

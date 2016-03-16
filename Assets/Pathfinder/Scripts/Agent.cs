@@ -44,7 +44,7 @@ namespace Assets.Pathfinder.Scripts
             for (int i = 0; i < pathArray.Length - 1; i++)
             {
                 Gizmos.color = Color.cyan;
-                Gizmos.DrawLine(pathArray[i], pathArray[i + 1]);
+                Gizmos.DrawLine(pathArray[i] + new Vector3(0,.2f,0), pathArray[i + 1] + new Vector3(0, .2f, 0));
             }
 
         }

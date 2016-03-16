@@ -61,7 +61,19 @@ namespace Assets.Pathfinder.Scripts
             {
                 for (int y = 0; y < height; y++)
                 {
+
+                    int movementPenalty = 0;
                     Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * edgeLength + nodeRadius) + Vector3.forward * (y * edgeLength + nodeRadius);
+                    RaycastHit hit;
+                    Vector3 groundPoint = worldPoint;
+                    bool walkable = false;
+                    if (Physics.Raycast(worldPoint + Vector3.up*50f, Vector3.down, out hit, 100f, walkableMask))
+                    {
+                        walkableRegionsDict.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
+                        groundPoint = hit.point;
+                        walkable = !(Physics.CheckCapsule(groundPoint, groundPoint + Vector3.up * agentHeight, nodeRadius, unwalkableMask));
+                    }
+                    /*Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * edgeLength + nodeRadius) + Vector3.forward * (y * edgeLength + nodeRadius);
                     bool walkable = !(Physics.CheckCapsule(worldPoint, worldPoint + Vector3.up * agentHeight, nodeRadius, unwalkableMask));
 
                     int movementPenalty = 0;
@@ -72,9 +84,9 @@ namespace Assets.Pathfinder.Scripts
                         RaycastHit hit;
                         if (Physics.Raycast(worldPoint + Vector3.up*50f, Vector3.down, out hit, 100f, walkableMask))
                             walkableRegionsDict.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
-                    }
+                    }*/
 
-                    grid[x, y] = new Node(worldPoint, walkable, x, y, movementPenalty);
+                    grid[x, y] = new Node(groundPoint, walkable, x, y, movementPenalty);
                 }
             }
         }
@@ -91,9 +103,12 @@ namespace Assets.Pathfinder.Scripts
 
                     int xIndex = node.x + x;
                     int yIndex = node.y + y;
-
-                    if (xIndex >= 0 && xIndex < width && yIndex >= 0 && yIndex < height)
-                        neighbours.Add(grid[xIndex, yIndex]);
+                   
+                    if (xIndex >= 0 && xIndex < width && yIndex >= 0 && yIndex < height )
+                    {
+                        if (Mathf.Abs(grid[xIndex, yIndex].position.y - node.position.y) < 1.5f)
+                            neighbours.Add(grid[xIndex, yIndex]);
+                    }
                 }
             }
 
