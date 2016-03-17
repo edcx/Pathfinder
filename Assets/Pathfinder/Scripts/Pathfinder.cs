@@ -28,19 +28,16 @@ namespace Assets.Pathfinder.Scripts
         private PathRequest currentPathRequest;
 
         private bool isProcessingPath;
-
-
         private Stopwatch stopWatch;
 
         public int width;
         public int height;
         public int neighbourCount = 4;
         public float edgeLength;
-        public float costModifier;
+        public float costMultiplier;
 
         public Graph graph;
 
-        //public List<Vector3> path = new List<Vector3>();
 
         private static Pathfinder instance;
 
@@ -156,20 +153,19 @@ namespace Assets.Pathfinder.Scripts
                 currentNode = currentNode.parent;
             }
             path.Add(startNode);
-            path.Reverse();
             Vector3[] waypoints = SimplifyPath(path);
-            //Array.Reverse(waypoints);
+            Array.Reverse(waypoints);
             return waypoints;
         }
 
         Vector3[] SimplifyPath(List<Node> path)
         {
             List<Vector3> waypoints = new List<Vector3>();
-            Vector2 directionOld = Vector2.zero;
+            Vector3 directionOld = Vector3.zero;
 
             for (int i = 1; i < path.Count; i++)
             {
-                Vector2 directionNew = new Vector2(path[i - 1].x - path[i].x, path[i - 1].y - path[i].y);
+                Vector3 directionNew = (path[i - 1].position - path[i].position).normalized;
                 if (directionNew != directionOld)
                 {
                     waypoints.Add(path[i].position);
@@ -177,7 +173,6 @@ namespace Assets.Pathfinder.Scripts
                 directionOld = directionNew;
             }
             waypoints.Add(path[path.Count - 1].position);
-
             return waypoints.ToArray();
         }
 
@@ -187,9 +182,9 @@ namespace Assets.Pathfinder.Scripts
             int distY = Mathf.Abs(nodeA.y - nodeB.y);
 
             if (distX > distY)
-                return 14 * distY + 10 * (distX - distY);
+                return (int)((14 * distY + 10 * (distX - distY)) * costMultiplier);
 
-            return 14 * distX + 10 * (distY - distX);
+            return (int)((14 * distX + 10 * (distY - distX)) * costMultiplier);
         }
 
         float CalculateDistance2D(Vector3 v1, Vector3 v2)

@@ -14,15 +14,15 @@ namespace Assets.Pathfinder.Scripts
         public int neighbourCount = 4;
         public float edgeLength;
         public float agentHeight;
-        [Range(0f,1f)]
-        public float costModifier;
+        [Range(1f,10f)]
+        public float costMultiplier;
 
         public Graph.Region[] regions;
 
         public Transform target;
 
         public List<Graph> graphs = new List<Graph>();
-        public List<Vector3> path = new List<Vector3>();
+        //public List<Vector3> path = new List<Vector3>();
         public Node endNode;
 
 
@@ -48,7 +48,7 @@ namespace Assets.Pathfinder.Scripts
             pathfinder.width = width;
             pathfinder.height = height;
             pathfinder.neighbourCount = neighbourCount;
-            pathfinder.costModifier = costModifier;
+            pathfinder.costMultiplier = costMultiplier;
             Profiler.EndSample();
             Profiler.BeginSample("Graph Copy");
             pathfinder.graph = graphs[0];
@@ -70,7 +70,7 @@ namespace Assets.Pathfinder.Scripts
                 pfThread.width = width;
                 pfThread.height = height;
                 pfThread.neighbourCount = neighbourCount;
-                pfThread.costModifier = costModifier;
+                pfThread.costModifier = costMultiplier;
                 Profiler.EndSample();
                 Profiler.BeginSample("Graph Copy");
                 pfThread.graph = graphs[0].DeepCopy();
@@ -101,9 +101,10 @@ namespace Assets.Pathfinder.Scripts
                 for (int j = 0; j < g.height; j++)
                 {
                     Gizmos.color = Color.yellow;
+                    if (g.grid[i,j] == null) continue;
                     if (!g.grid[i,j].isWalkable)
                         Gizmos.color = Color.red;
-                    Gizmos.DrawCube(g.grid[i, j].position, Vector3.one * .5f);
+                    Gizmos.DrawCube(g.grid[i, j].position, Vector3.one * edgeLength * .5f);
                     
                 }
             }

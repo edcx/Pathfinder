@@ -85,8 +85,8 @@ namespace Assets.Pathfinder.Scripts
                         if (Physics.Raycast(worldPoint + Vector3.up*50f, Vector3.down, out hit, 100f, walkableMask))
                             walkableRegionsDict.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
                     }*/
-
-                    grid[x, y] = new Node(groundPoint, walkable, x, y, movementPenalty);
+                    //if (walkable)
+                        grid[x, y] = new Node(groundPoint, walkable, x, y, movementPenalty);
                 }
             }
         }
@@ -106,6 +106,7 @@ namespace Assets.Pathfinder.Scripts
                    
                     if (xIndex >= 0 && xIndex < width && yIndex >= 0 && yIndex < height )
                     {
+                        if(grid[xIndex, yIndex] == null) continue;
                         if (Mathf.Abs(grid[xIndex, yIndex].position.y - node.position.y) < 1.5f)
                             neighbours.Add(grid[xIndex, yIndex]);
                     }
@@ -117,8 +118,10 @@ namespace Assets.Pathfinder.Scripts
 
         public Node GetNode(Vector3 worldPosition)
         {
-            float percentX = (worldPosition.x + gridWorldSize.x * .5f) / gridWorldSize.x;
-            float percentY = (worldPosition.z + gridWorldSize.y * .5f) / gridWorldSize.y;
+            //float percentX = (worldPosition.x + gridWorldSize.x * .5f) / gridWorldSize.x;
+            //float percentY = (worldPosition.z + gridWorldSize.y * .5f) / gridWorldSize.y;
+            float percentX = (worldPosition.x - startPosition.x) / gridWorldSize.x;
+            float percentY = (worldPosition.z - startPosition.z) / gridWorldSize.y;
 
             percentX = Mathf.Clamp01(percentX);
             percentY = Mathf.Clamp01(percentY);
