@@ -163,9 +163,9 @@ namespace Assets.Pathfinder.Scripts
             List<Vector3> waypoints = new List<Vector3>();
             Vector3 directionOld = Vector3.zero;
 
-            for (int i = 1; i < path.Count; i++)
+            for (int i = 0; i < path.Count - 1; i++)
             {
-                Vector3 directionNew = (path[i - 1].position - path[i].position).normalized;
+                Vector3 directionNew = (path[i + 1].position - path[i].position).normalized;
                 if (directionNew != directionOld)
                 {
                     waypoints.Add(path[i].position);

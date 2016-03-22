@@ -9,7 +9,7 @@ namespace Assets.Pathfinder.Scripts
         public List<Vector3> path = new List<Vector3>();
         public Vector3[] pathArray;
 
-        public Pathfinding pf;
+        public PathManager pf;
 
         public Transform target;
         public bool drawGizmos;
