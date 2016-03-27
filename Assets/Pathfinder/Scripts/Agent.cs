@@ -9,16 +9,15 @@ namespace Assets.Pathfinder.Scripts
         public List<Vector3> path = new List<Vector3>();
         public Vector3[] pathArray;
 
-        public PathManager pf;
 
         public Transform target;
         public bool drawGizmos;
 
 
         void Update () {
-            if (Input.GetKeyDown(KeyCode.Space) && pf != null)
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                pf.RequestPath(this, target.position, OnPathfindingCompleted);
+                PathManager.RequestPath(transform.position, target.position, OnPathfindingCompleted);
             }
         }
 

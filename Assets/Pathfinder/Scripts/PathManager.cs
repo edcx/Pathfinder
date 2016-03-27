@@ -6,74 +6,72 @@ namespace Assets.Pathfinder.Scripts
 {
     public class PathManager : MonoBehaviour {
 
-        public Vector3 startPosition;
-        public LayerMask unwalkableMask;
+        struct PathRequest
+        {
+            public Vector3 pathStart;
+            public Vector3 pathEnd;
+            public Action<Vector3[], bool> callback;
 
-        public int width;
-        public int height;
-        public int neighbourCount = 4;
-        public float edgeLength;
-        public float agentHeight;
-        [Range(1f,10f)]
-        public float costMultiplier;
+            public PathRequest(Vector3 _start, Vector3 _end, Action<Vector3[], bool> _callback)
+            {
+                pathStart = _start;
+                pathEnd = _end;
+                callback = _callback;
+            }
+        }
 
-        public Graph.Region[] regions;
+        Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
+        private PathRequest currentPathRequest;
 
-        public Transform target;
-
-        public List<Graph> graphs = new List<Graph>();
-        //public List<Vector3> path = new List<Vector3>();
-        public Node endNode;
-
-
-        public List<Node> openSet = new List<Node>();
-        public List<Node> closedSet = new List<Node>();
-
-        public bool drawGizmos;
+        private bool isProcessingPath;
 
         private Pathfinder pathfinder;
-        int threadID = 0;
+
+        private static PathManager instance;
+
+        public PathManager()
+        {
+            instance = this;
+
+        }
+
+        public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
+        {
+            PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback);
+            instance.pathRequestQueue.Enqueue(newRequest);
+            instance.TryProcessNext();
+        }
+
+        public static int ReturnQueuedRequestCount()
+        {
+            return instance.pathRequestQueue.Count;
+        }
+        void TryProcessNext()
+        {
+            if (!isProcessingPath && pathRequestQueue.Count > 0)
+            {
+                currentPathRequest = pathRequestQueue.Dequeue();
+                isProcessingPath = true;
+                pathfinder.StartFindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
+                //IEnumerator e = FindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
+                //while (e.MoveNext()){ }
+
+            }
+        }
+        public void FinishedProcessingPath(Vector3[] path, bool success)
+        {
+            currentPathRequest.callback(path, success);
+            isProcessingPath = false;
+            TryProcessNext();
+        }
 
         void Start () {
-            Graph g = new Graph(startPosition, width, height, neighbourCount, edgeLength, agentHeight, unwalkableMask, regions);
-            graphs.Add(g);
 
             //Create Pathfinder
             //pathfinder = new Pathfinder();
             pathfinder = GetComponent<Pathfinder>();
-
-            pathfinder.width = width;
-            pathfinder.height = height;
-            pathfinder.neighbourCount = neighbourCount;
-            pathfinder.costMultiplier = costMultiplier;
-            pathfinder.graph = graphs[0];
-            pathfinder.edgeLength = edgeLength;
         }
 
-
-        public void RequestPath(Agent agent, Vector3 targetPos, Action<Vector3[], bool> callback = null)
-        {
-            Pathfinder.RequestPath(agent.transform.position, targetPos, callback);
-        }
-
-        void OnDrawGizmos()
-        {
-            if (!drawGizmos || graphs.Count < 1) return;
-
-            Graph g = graphs[0];
-            for (int i = 0; i < g.width; i++)
-            {
-                for (int j = 0; j < g.height; j++)
-                {
-                    Gizmos.color = Color.yellow;
-                    if (g.grid[i,j] == null) continue;
-                    if (!g.grid[i,j].isWalkable)
-                        Gizmos.color = Color.red;
-                    Gizmos.DrawCube(g.grid[i, j].position, Vector3.one * edgeLength * .5f);
-                    
-                }
-            }
-       
-        }
+        
     }
 }

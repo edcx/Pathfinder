@@ -10,75 +10,25 @@ namespace Assets.Pathfinder.Scripts
     public class Pathfinder : MonoBehaviour
     {
 
-        struct PathRequest
-        {
-            public Vector3 pathStart;
-            public Vector3 pathEnd;
-            public Action<Vector3[], bool> callback;
-
-            public PathRequest(Vector3 _start, Vector3 _end, Action<Vector3[], bool> _callback)
-            {
-                pathStart = _start;
-                pathEnd = _end;
-                callback = _callback;
-            }
-        }
-
-        Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
-        private PathRequest currentPathRequest;
-
-        private bool isProcessingPath;
+        private PathManager pathManager;
         private Stopwatch stopWatch;
 
-        public int width;
-        public int height;
-        public int neighbourCount = 4;
-        public float edgeLength;
+        [Range(1f, 10f)]
         public float costMultiplier;
 
         public Graph graph;
 
-
-        private static Pathfinder instance;
-
-        public Pathfinder()
+        void Awake()
         {
-            instance = this;
-
+            pathManager = GetComponent<PathManager>();
         }
 
-        public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
+        public void StartFindPath(Vector3 startPoint, Vector3 endPoint)
         {
-            PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback);
-            instance.pathRequestQueue.Enqueue(newRequest);
-            instance.TryProcessNext();
+            StartCoroutine(FindPath(startPoint, endPoint));
         }
 
-        public static int ReturnQueuedRequestCount()
-        {
-            return instance.pathRequestQueue.Count;
-        }
-        void TryProcessNext()
-        {
-            if (!isProcessingPath && pathRequestQueue.Count > 0)
-            {
-                currentPathRequest = pathRequestQueue.Dequeue();
-                isProcessingPath = true;
-                StartCoroutine(CalculatePath(currentPathRequest.pathStart, currentPathRequest.pathEnd));
-                //IEnumerator e = CalculatePath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
-                //while (e.MoveNext()){ }
-
-            }
-        }
-
-        public void FinishedProcessingPath(Vector3[] path, bool success)
-        {
-            currentPathRequest.callback(path, success);
-            isProcessingPath = false;
-            TryProcessNext();
-        }
-
-        public IEnumerator CalculatePath(Vector3 startPosition, Vector3 targetPosition)
+        public IEnumerator FindPath(Vector3 startPosition, Vector3 targetPosition)
         {
             stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -91,7 +41,7 @@ namespace Assets.Pathfinder.Scripts
             bool isPathFound = false;
             if (startNode.isWalkable && targetNode.isWalkable)
             {
-                Heap<Node> openSet = new Heap<Node>(graph.width * graph.height);
+                Heap<Node> openSet = new Heap<Node>(graph.NodeCount());
                 HashSet<Node> closedSet = new HashSet<Node>();
 
                 openSet.Add(startNode);
@@ -121,9 +71,7 @@ namespace Assets.Pathfinder.Scripts
                             else
                                 openSet.UpdateItem(neighbour);
                         }
-
                     }
-
                 }
             }
 
@@ -139,7 +87,7 @@ namespace Assets.Pathfinder.Scripts
 
             yield return null;
 
-            FinishedProcessingPath(waypoints, isPathFound);
+            pathManager.FinishedProcessingPath(waypoints, isPathFound);
         }
 
         Vector3[] RetracePath(Node startNode, Node endNode)

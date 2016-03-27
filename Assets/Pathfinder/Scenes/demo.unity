@@ -118,7 +118,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &19968738
@@ -325,7 +324,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &78543922
@@ -403,7 +401,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &91803642
@@ -651,7 +648,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!1 &231934242
@@ -686,7 +682,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &231934244
@@ -1332,7 +1327,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &289398059
@@ -1507,7 +1501,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &305483852
@@ -1786,7 +1779,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!1 &355421490
@@ -1921,7 +1913,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &362923850
@@ -2145,7 +2136,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &401931643
@@ -2393,7 +2383,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &549417549
@@ -2526,7 +2515,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!1 &580300412
@@ -2561,7 +2549,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &580300414
@@ -3009,6 +2996,7 @@ GameObject:
   - 4: {fileID: 649266432}
   - 114: {fileID: 649266431}
   - 114: {fileID: 649266433}
+  - 114: {fileID: 649266434}
   m_Layer: 0
   m_Name: A*
   m_TagString: Untagged
@@ -3027,31 +3015,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3612c33830eed7e41ad62169d725d7a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPosition: {x: -100, y: 0, z: -100}
-  unwalkableMask:
-    serializedVersion: 2
-    m_Bits: 256
-  width: 100
-  height: 100
-  neighbourCount: 8
-  edgeLength: 2
-  agentHeight: 2
-  costMultiplier: 1
-  regions:
-  - regionMask:
-      serializedVersion: 2
-      m_Bits: 512
-    penalty: 0
-  - regionMask:
-      serializedVersion: 2
-      m_Bits: 2048
-    penalty: 8
-  - regionMask:
-      serializedVersion: 2
-      m_Bits: 1024
-    penalty: 20
-  target: {fileID: 809141655}
-  drawGizmos: 0
 --- !u!4 &649266432
 Transform:
   m_ObjectHideFlags: 0
@@ -3075,11 +3038,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf7f487b306e30a4b97def2e4534d05f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 0
-  height: 0
-  neighbourCount: 4
-  edgeLength: 0
-  costMultiplier: 0
+  costMultiplier: 1
+  graph: {fileID: 649266434}
+--- !u!114 &649266434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 649266430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9de71b79de6d42b409d5fbac0f4bff07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StartPosition: {x: -100, y: 0, z: -100}
+  UnwalkableMask:
+    serializedVersion: 2
+    m_Bits: 256
+  Width: 100
+  Height: 100
+  EdgeLength: 2
+  AgentHeight: 2
+  WalkableRegions:
+  - regionMask:
+      serializedVersion: 2
+      m_Bits: 512
+    penalty: 0
+  - regionMask:
+      serializedVersion: 2
+      m_Bits: 2048
+    penalty: 8
+  - regionMask:
+      serializedVersion: 2
+      m_Bits: 1024
+    penalty: 20
+  drawGizmos: 0
 --- !u!1 &666404179
 GameObject:
   m_ObjectHideFlags: 0
@@ -3124,7 +3117,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &666404182
@@ -3287,7 +3279,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &753976278
@@ -3802,7 +3793,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &829091359
@@ -3892,7 +3882,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &844265636
@@ -4116,7 +4105,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &909302934
@@ -4365,7 +4353,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &973803218
@@ -4601,7 +4588,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1038633455
@@ -4703,7 +4689,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1072002358
@@ -4781,7 +4766,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1082737973
@@ -4883,7 +4867,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1083090104
@@ -5104,7 +5087,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!1 &1116109473
@@ -5248,7 +5230,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1152560767
@@ -5350,7 +5331,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1172972995
@@ -5440,7 +5420,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1280356670
@@ -5720,7 +5699,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1355928342
@@ -5871,7 +5849,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1412491122
@@ -6034,7 +6011,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1439014092
@@ -6136,7 +6112,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1467559408
@@ -6420,7 +6395,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1533181656
@@ -6498,7 +6472,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1544323321
@@ -6661,7 +6634,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1596953925
@@ -7124,7 +7096,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1684957558
@@ -7202,7 +7173,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1709882432
@@ -7377,7 +7347,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1801143785
@@ -7455,7 +7424,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1818204177
@@ -7545,7 +7513,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1820581435
@@ -7647,7 +7614,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1843810147
@@ -7871,7 +7837,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &1949939909
@@ -8016,7 +7981,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!1 &1993127553
@@ -8283,7 +8247,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &2021725176
@@ -8373,7 +8336,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &2029672550
@@ -8463,7 +8425,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &2031267851
@@ -8626,7 +8587,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &2033627964
@@ -8716,7 +8676,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: []
   pathArray: []
-  pf: {fileID: 649266431}
   target: {fileID: 809141655}
   drawGizmos: 1
 --- !u!23 &2054662815
