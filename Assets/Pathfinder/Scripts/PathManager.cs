@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace Assets.Pathfinder.Scripts
 {
-    public class PathManager : MonoBehaviour {
+    public class PathManager : MonoBehaviour
+    {
 
         struct PathRequest
         {

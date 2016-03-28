@@ -13,9 +13,9 @@ namespace Assets.Pathfinder.Scripts
             public int penalty;
         }
 
-        public abstract Node GetNode(Vector3 worldPosition);
+        public abstract IPathable GetNode(Vector3 worldPosition);
 
-        public abstract List<Node> GetNeighbours(Node node);
+        public abstract List<IPathable> GetNeighbours(IPathable node);
 
         public abstract int NodeCount();
     }

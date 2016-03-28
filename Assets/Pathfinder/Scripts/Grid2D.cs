@@ -90,9 +90,35 @@ namespace Assets.Pathfinder.Scripts
             }
         }
 
-        public override List<Node> GetNeighbours(Node node)
+        /*public List<Node> GetNeighbours(Node node)
         {
             List<Node> neighbours = new List<Node>();
+
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    if (x == 0 && y == 0) continue;
+
+                    int xIndex = node.x + x;
+                    int yIndex = node.y + y;
+
+                    if (xIndex >= 0 && xIndex < Width && yIndex >= 0 && yIndex < Height)
+                    {
+                        if (Grid[xIndex, yIndex] == null) continue;
+                        if (Mathf.Abs(Grid[xIndex, yIndex].position.y - node.position.y) < 1.5f) // TODO: Remove Magic Number!
+                            neighbours.Add(Grid[xIndex, yIndex]);
+                    }
+                }
+            }
+
+            return neighbours;
+        }*/
+
+
+        public override List<IPathable> GetNeighbours(IPathable node)
+        {
+            List<IPathable> neighbours = new List<IPathable>();
 
             for (int x = -1; x <= 1; x++)
             {
@@ -120,7 +146,7 @@ namespace Assets.Pathfinder.Scripts
             return Width*Height;
         }
 
-        public override Node GetNode(Vector3 worldPosition)
+        public override IPathable GetNode(Vector3 worldPosition)
         {
             //float percentX = (worldPosition.x + gridWorldSize.x * .5f) / gridWorldSize.x;
             //float percentY = (worldPosition.z + gridWorldSize.y * .5f) / gridWorldSize.y;
@@ -146,7 +172,7 @@ namespace Assets.Pathfinder.Scripts
                 {
                     Gizmos.color = Color.yellow;
                     if (Grid[i, j] == null) continue;
-                    if (!Grid[i, j].isWalkable)
+                    if (!Grid[i, j].IsWalkable)
                         Gizmos.color = Color.red;
                     Gizmos.DrawCube(Grid[i, j].position, Vector3.one * EdgeLength * .5f);
 

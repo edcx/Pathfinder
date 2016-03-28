@@ -35,19 +35,19 @@ namespace Assets.Pathfinder.Scripts
 
             Vector3[] waypoints = new Vector3[0];
 
-            Node startNode = graph.GetNode(startPosition);
-            Node targetNode = graph.GetNode(targetPosition);
+            IPathable startNode = graph.GetNode(startPosition);
+            IPathable targetNode = graph.GetNode(targetPosition);
 
             bool isPathFound = false;
-            if (startNode.isWalkable && targetNode.isWalkable)
+            if (startNode.IsWalkable && targetNode.IsWalkable)
             {
-                Heap<Node> openSet = new Heap<Node>(graph.NodeCount());
-                HashSet<Node> closedSet = new HashSet<Node>();
+                Heap<IPathable> openSet = new Heap<IPathable>(graph.NodeCount());
+                HashSet<IPathable> closedSet = new HashSet<IPathable>();
 
                 openSet.Add(startNode);
                 while (openSet.Count > 0)
                 {
-                    Node currentNode = openSet.RemoveFirst();
+                    IPathable currentNode = openSet.RemoveFirst();
                     closedSet.Add(currentNode);
 
                     if (currentNode == targetNode)
@@ -56,9 +56,9 @@ namespace Assets.Pathfinder.Scripts
                         break;
                     }
  
-                    foreach (Node neighbour in graph.GetNeighbours(currentNode))
+                    foreach (IPathable neighbour in graph.GetNeighbours(currentNode))
                     {
-                        if (!neighbour.isWalkable || closedSet.Contains(neighbour)) continue;
+                        if (!neighbour.IsWalkable || closedSet.Contains(neighbour)) continue;
 
                         int newMovementCostToNeighbour = currentNode.g + GetDistance(currentNode, neighbour) + neighbour.penalty;
                         if (newMovementCostToNeighbour < neighbour.g || !openSet.Contains(neighbour))
@@ -90,10 +90,10 @@ namespace Assets.Pathfinder.Scripts
             pathManager.FinishedProcessingPath(waypoints, isPathFound);
         }
 
-        Vector3[] RetracePath(Node startNode, Node endNode)
+        Vector3[] RetracePath(IPathable startNode, IPathable endNode)
         {
-            List<Node> path = new List<Node>();
-            Node currentNode = endNode;
+            List<IPathable> path = new List<IPathable>();
+            IPathable currentNode = endNode;
 
             while (currentNode != startNode)
             {
@@ -106,7 +106,7 @@ namespace Assets.Pathfinder.Scripts
             return waypoints;
         }
 
-        Vector3[] SimplifyPath(List<Node> path)
+        Vector3[] SimplifyPath(List<IPathable> path)
         {
             List<Vector3> waypoints = new List<Vector3>();
             Vector3 directionOld = Vector3.zero;
@@ -124,7 +124,7 @@ namespace Assets.Pathfinder.Scripts
             return waypoints.ToArray();
         }
 
-        int GetDistance(Node nodeA, Node nodeB)
+        int GetDistance(IPathable nodeA, IPathable nodeB)
         {
             int distX = Mathf.Abs(nodeA.x - nodeB.x);
             int distY = Mathf.Abs(nodeA.y - nodeB.y);
