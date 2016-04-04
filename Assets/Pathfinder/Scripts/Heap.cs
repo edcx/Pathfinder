@@ -3,29 +3,29 @@
     public class Heap<T> where T : IPathable
     {
 
-        T[] items;
-        int currentItemCount;
+        T[] _items;
+        int _currentItemCount;
 
         public Heap(int maxHeapSize)
         {
-            items = new T[maxHeapSize];
+            _items = new T[maxHeapSize];
         }
 
         public void Add(T item)
         {
-            item.HeapIndex = currentItemCount;
-            items[currentItemCount] = item;
+            item.HeapIndex = _currentItemCount;
+            _items[_currentItemCount] = item;
             SortUp(item);
-            currentItemCount++;
+            _currentItemCount++;
         }
 
         public T RemoveFirst()
         {
-            T firstItem = items[0];
-            currentItemCount--;
-            items[0] = items[currentItemCount];
-            items[0].HeapIndex = 0;
-            SortDown(items[0]);
+            T firstItem = _items[0];
+            _currentItemCount--;
+            _items[0] = _items[_currentItemCount];
+            _items[0].HeapIndex = 0;
+            SortDown(_items[0]);
             return firstItem;
         }
 
@@ -40,7 +40,7 @@
 
             while (true)
             {
-                T parentItem = items[parentIndex];
+                T parentItem = _items[parentIndex];
                 if (item.CompareTo(parentItem) > 0)
                     Swap(item, parentItem);
                 else
@@ -57,16 +57,16 @@
                 int rightChildIndex = item.HeapIndex*2 + 2;
                 int swapIndex = 0;
 
-                if (leftChildIndex < currentItemCount)
+                if (leftChildIndex < _currentItemCount)
                 {
                     swapIndex = leftChildIndex;
-                    if (rightChildIndex < currentItemCount)
+                    if (rightChildIndex < _currentItemCount)
                     {
-                        if (items[leftChildIndex].CompareTo(items[rightChildIndex]) < 0)
+                        if (_items[leftChildIndex].CompareTo(_items[rightChildIndex]) < 0)
                             swapIndex = rightChildIndex;
                     }
-                    if (item.CompareTo(items[swapIndex]) < 0)
-                        Swap(item, items[swapIndex]);
+                    if (item.CompareTo(_items[swapIndex]) < 0)
+                        Swap(item, _items[swapIndex]);
                     else
                         return;
 
@@ -79,8 +79,8 @@
 
         void Swap(T itemA, T itemB)
         {
-            items[itemA.HeapIndex] = itemB;
-            items[itemB.HeapIndex] = itemA;
+            _items[itemA.HeapIndex] = itemB;
+            _items[itemB.HeapIndex] = itemA;
             int itemAIndex = itemA.HeapIndex;
             itemA.HeapIndex = itemB.HeapIndex;
             itemB.HeapIndex = itemAIndex;
@@ -88,12 +88,12 @@
 
         public int Count
         {
-            get { return currentItemCount; }
+            get { return _currentItemCount; }
         }
 
         public bool Contains(T item)
         {
-            return Equals(items[item.HeapIndex], item);
+            return Equals(_items[item.HeapIndex], item);
         }
 
 

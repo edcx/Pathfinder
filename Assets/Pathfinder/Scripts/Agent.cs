@@ -6,44 +6,49 @@ namespace Assets.Pathfinder.Scripts
     public class Agent : MonoBehaviour {
 
 
-        public List<Vector3> path = new List<Vector3>();
-        public Vector3[] pathArray;
+        public Vector3[] PathArray;
 
 
-        public Transform target;
-        public bool drawGizmos;
+        public Transform Target;
+        public bool DrawGizmos;
 
 
         void Update () {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                PathManager.RequestPath(transform.position, target.position, OnPathfindingCompleted);
+                PathManager.RequestPath(transform.position, Target.position, OnPathfindingCompleted);
             }
         }
 
+
+        /// <summary>
+        /// Path Request Callback function
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="pathfound"></param>
         void OnPathfindingCompleted(Vector3[] path, bool pathfound)
         {
             if (pathfound)
             {
-                pathArray= new Vector3[0];
-                pathArray = path;
+                PathArray = new Vector3[0];
+                PathArray = path;
             }
         }
 
 
         void OnDrawGizmos()
         {
-            if (!drawGizmos) return;
+            if (!DrawGizmos) return;
 
-            for (int i = 0; i < path.Count - 1; i++)
+            for (int i = 0; i < PathArray.Length - 1; i++)
             {
                 Gizmos.color = Color.cyan;
-                Gizmos.DrawLine(path[i], path[i + 1]);
+                Gizmos.DrawLine(PathArray[i], PathArray[i + 1]);
             }
-            for (int i = 0; i < pathArray.Length - 1; i++)
+            for (int i = 0; i < PathArray.Length - 1; i++)
             {
                 Gizmos.color = Color.cyan;
-                Gizmos.DrawLine(pathArray[i] + new Vector3(0,.2f,0), pathArray[i + 1] + new Vector3(0, .2f, 0));
+                Gizmos.DrawLine(PathArray[i] + new Vector3(0,.2f,0), PathArray[i + 1] + new Vector3(0, .2f, 0));
             }
 
         }

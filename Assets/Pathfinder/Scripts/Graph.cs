@@ -9,8 +9,8 @@ namespace Assets.Pathfinder.Scripts
         [Serializable]
         public struct Region
         {
-            public LayerMask regionMask;
-            public int penalty;
+            public LayerMask RegionMask;
+            public int Penalty;
         }
 
         public abstract IPathable GetNode(Vector3 worldPosition);

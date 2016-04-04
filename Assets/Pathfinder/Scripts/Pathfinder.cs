@@ -10,17 +10,17 @@ namespace Assets.Pathfinder.Scripts
     public class Pathfinder : MonoBehaviour
     {
 
-        private PathManager pathManager;
-        private Stopwatch stopWatch;
+        private PathManager _pathManager;
+        private Stopwatch _stopWatch;
 
         [Range(1f, 10f)]
-        public float costMultiplier;
+        public float CostMultiplier;
 
-        public Graph graph;
+        public Graph Graph;
 
         void Awake()
         {
-            pathManager = GetComponent<PathManager>();
+            _pathManager = GetComponent<PathManager>();
         }
 
         public void StartFindPath(Vector3 startPoint, Vector3 endPoint)
@@ -28,20 +28,26 @@ namespace Assets.Pathfinder.Scripts
             StartCoroutine(FindPath(startPoint, endPoint));
         }
 
+        /// <summary>
+        /// Search for a path.
+        /// </summary>
+        /// <param name="startPosition"></param>
+        /// <param name="targetPosition"></param>
+        /// <returns></returns>
         public IEnumerator FindPath(Vector3 startPosition, Vector3 targetPosition)
         {
-            stopWatch = new Stopwatch();
-            stopWatch.Start();
+            _stopWatch = new Stopwatch();
+            _stopWatch.Start();
 
             Vector3[] waypoints = new Vector3[0];
 
-            IPathable startNode = graph.GetNode(startPosition);
-            IPathable targetNode = graph.GetNode(targetPosition);
+            IPathable startNode = Graph.GetNode(startPosition);
+            IPathable targetNode = Graph.GetNode(targetPosition);
 
             bool isPathFound = false;
             if (startNode.IsWalkable && targetNode.IsWalkable)
             {
-                Heap<IPathable> openSet = new Heap<IPathable>(graph.NodeCount());
+                Heap<IPathable> openSet = new Heap<IPathable>(Graph.NodeCount());
                 HashSet<IPathable> closedSet = new HashSet<IPathable>();
 
                 openSet.Add(startNode);
@@ -56,16 +62,16 @@ namespace Assets.Pathfinder.Scripts
                         break;
                     }
  
-                    foreach (IPathable neighbour in graph.GetNeighbours(currentNode))
+                    foreach (IPathable neighbour in Graph.GetNeighbours(currentNode))
                     {
                         if (!neighbour.IsWalkable || closedSet.Contains(neighbour)) continue;
 
-                        int newMovementCostToNeighbour = currentNode.g + GetDistance(currentNode, neighbour) + neighbour.penalty;
-                        if (newMovementCostToNeighbour < neighbour.g || !openSet.Contains(neighbour))
+                        int newMovementCostToNeighbour = currentNode.G + GetDistance(currentNode, neighbour) + neighbour.Penalty;
+                        if (newMovementCostToNeighbour < neighbour.G || !openSet.Contains(neighbour))
                         {
-                            neighbour.g = newMovementCostToNeighbour;
-                            neighbour.h = GetDistance(neighbour, targetNode);
-                            neighbour.parent = currentNode;
+                            neighbour.G = newMovementCostToNeighbour;
+                            neighbour.H = GetDistance(neighbour, targetNode);
+                            neighbour.Parent = currentNode;
                             if (!openSet.Contains(neighbour))
                                 openSet.Add(neighbour);
                             else
@@ -81,13 +87,13 @@ namespace Assets.Pathfinder.Scripts
             }
             else
                 UnityEngine.Debug.Log("Search path failed!");
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
+            _stopWatch.Stop();
+            TimeSpan ts = _stopWatch.Elapsed;
             //UnityEngine.Debug.Log(">>> PathFinding" + " completed in " + ts.TotalMilliseconds + "ms!");
 
             yield return null;
 
-            pathManager.FinishedProcessingPath(waypoints, isPathFound);
+            _pathManager.FinishedProcessingPath(waypoints, isPathFound);
         }
 
         Vector3[] RetracePath(IPathable startNode, IPathable endNode)
@@ -98,7 +104,7 @@ namespace Assets.Pathfinder.Scripts
             while (currentNode != startNode)
             {
                 path.Add(currentNode);
-                currentNode = currentNode.parent;
+                currentNode = currentNode.Parent;
             }
             path.Add(startNode);
             Vector3[] waypoints = SimplifyPath(path);
@@ -106,6 +112,11 @@ namespace Assets.Pathfinder.Scripts
             return waypoints;
         }
 
+        /// <summary>
+        /// Removes nodes if we are on a straigth path
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         Vector3[] SimplifyPath(List<IPathable> path)
         {
             List<Vector3> waypoints = new List<Vector3>();
@@ -113,31 +124,32 @@ namespace Assets.Pathfinder.Scripts
 
             for (int i = 0; i < path.Count - 1; i++)
             {
-                Vector3 directionNew = (path[i + 1].position - path[i].position).normalized;
+                Vector3 directionNew = (path[i + 1].Position - path[i].Position).normalized;
                 if (directionNew != directionOld)
                 {
-                    waypoints.Add(path[i].position);
+                    waypoints.Add(path[i].Position);
                 }
                 directionOld = directionNew;
             }
-            waypoints.Add(path[path.Count - 1].position);
+            waypoints.Add(path[path.Count - 1].Position);
             return waypoints.ToArray();
         }
 
+        /// <summary>
+        /// Returns distance from first point to second
+        /// </summary>
+        /// <param name="nodeA"></param>
+        /// <param name="nodeB"></param>
+        /// <returns></returns>
         int GetDistance(IPathable nodeA, IPathable nodeB)
         {
-            int distX = Mathf.Abs(nodeA.x - nodeB.x);
-            int distY = Mathf.Abs(nodeA.y - nodeB.y);
+            int distX = Mathf.Abs(nodeA.X - nodeB.X);
+            int distY = Mathf.Abs(nodeA.Y - nodeB.Y);
 
             if (distX > distY)
-                return (int)((14 * distY + 10 * (distX - distY)) * costMultiplier);
+                return (int)((14 * distY + 10 * (distX - distY)) * CostMultiplier);
 
-            return (int)((14 * distX + 10 * (distY - distX)) * costMultiplier);
-        }
-
-        float CalculateDistance2D(Vector3 v1, Vector3 v2)
-        {
-            return Vector2.Distance(new Vector2(v1.x, v1.z), new Vector2(v2.z, v2.z));
+            return (int)((14 * distX + 10 * (distY - distX)) * CostMultiplier);
         }
 
     }

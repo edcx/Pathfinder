@@ -16,11 +16,11 @@ namespace Assets.Pathfinder.Scripts
 
         public Region[] WalkableRegions;
 
-        public bool drawGizmos;
+        public bool DrawGizmos;
 
 
         private LayerMask _walkableMask;
-        private readonly Dictionary<int, int> walkableRegionsDict = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> _walkableRegionsDict = new Dictionary<int, int>();
         private Vector2 _gridWorldSize;
         private float _nodeRadius;
 
@@ -29,6 +29,16 @@ namespace Assets.Pathfinder.Scripts
             ConstructGrid2D(StartPosition, Width, Height, EdgeLength, AgentHeight, UnwalkableMask, WalkableRegions);
         }
 
+        /// <summary>
+        /// Initialize 2D grid in 3D world
+        /// </summary>
+        /// <param name="startPosition"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="edgeLength"></param>
+        /// <param name="agentHeight"></param>
+        /// <param name="unwalkableMask"></param>
+        /// <param name="walkableRegions"></param>
         public void ConstructGrid2D(Vector3 startPosition, int width, int height,  float edgeLength, float agentHeight, LayerMask unwalkableMask, Region[] walkableRegions)
         {
             StartPosition = startPosition;
@@ -44,8 +54,8 @@ namespace Assets.Pathfinder.Scripts
 
             foreach (var region in walkableRegions)
             {
-                _walkableMask.value |= region.regionMask.value;
-                walkableRegionsDict.Add((int)Mathf.Log(region.regionMask, 2), region.penalty);
+                _walkableMask.value |= region.RegionMask.value;
+                _walkableRegionsDict.Add((int)Mathf.Log(region.RegionMask, 2), region.Penalty);
 
             }
 
@@ -68,7 +78,7 @@ namespace Assets.Pathfinder.Scripts
                     bool walkable = false;
                     if (Physics.Raycast(worldPoint + Vector3.up * 50f, Vector3.down, out hit, 100f, _walkableMask))
                     {
-                        walkableRegionsDict.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
+                        _walkableRegionsDict.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
                         groundPoint = hit.point;
                         walkable = !(Physics.CheckCapsule(groundPoint, groundPoint + Vector3.up * AgentHeight, _nodeRadius, UnwalkableMask));
                     }
@@ -90,32 +100,6 @@ namespace Assets.Pathfinder.Scripts
             }
         }
 
-        /*public List<Node> GetNeighbours(Node node)
-        {
-            List<Node> neighbours = new List<Node>();
-
-            for (int x = -1; x <= 1; x++)
-            {
-                for (int y = -1; y <= 1; y++)
-                {
-                    if (x == 0 && y == 0) continue;
-
-                    int xIndex = node.x + x;
-                    int yIndex = node.y + y;
-
-                    if (xIndex >= 0 && xIndex < Width && yIndex >= 0 && yIndex < Height)
-                    {
-                        if (Grid[xIndex, yIndex] == null) continue;
-                        if (Mathf.Abs(Grid[xIndex, yIndex].position.y - node.position.y) < 1.5f) // TODO: Remove Magic Number!
-                            neighbours.Add(Grid[xIndex, yIndex]);
-                    }
-                }
-            }
-
-            return neighbours;
-        }*/
-
-
         public override List<IPathable> GetNeighbours(IPathable node)
         {
             List<IPathable> neighbours = new List<IPathable>();
@@ -126,13 +110,13 @@ namespace Assets.Pathfinder.Scripts
                 {
                     if (x == 0 && y == 0) continue;
 
-                    int xIndex = node.x + x;
-                    int yIndex = node.y + y;
+                    int xIndex = node.X + x;
+                    int yIndex = node.Y + y;
 
                     if (xIndex >= 0 && xIndex < Width && yIndex >= 0 && yIndex < Height)
                     {
                         if (Grid[xIndex, yIndex] == null) continue;
-                        if (Mathf.Abs(Grid[xIndex, yIndex].position.y - node.position.y) < 1.5f) // TODO: Remove Magic Number!
+                        if (Mathf.Abs(Grid[xIndex, yIndex].Position.y - node.Position.y) < 1.5f) // TODO: Remove Magic Number!
                             neighbours.Add(Grid[xIndex, yIndex]);
                     }
                 }
@@ -164,7 +148,7 @@ namespace Assets.Pathfinder.Scripts
 
         void OnDrawGizmos()
         {
-            if (!drawGizmos) return;
+            if (!DrawGizmos) return;
 
             for (int i = 0; i < Width; i++)
             {
@@ -174,7 +158,7 @@ namespace Assets.Pathfinder.Scripts
                     if (Grid[i, j] == null) continue;
                     if (!Grid[i, j].IsWalkable)
                         Gizmos.color = Color.red;
-                    Gizmos.DrawCube(Grid[i, j].position, Vector3.one * EdgeLength * .5f);
+                    Gizmos.DrawCube(Grid[i, j].Position, Vector3.one * EdgeLength * .5f);
 
                 }
             }

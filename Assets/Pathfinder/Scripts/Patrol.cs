@@ -3,9 +3,9 @@ using System.Collections;
 
 public class Patrol : MonoBehaviour {
 
-    public Vector3 startPos;
-    public Vector3 endPos;
-    public float speed;
+    public Vector3 StartPos;
+    public Vector3 EndPos;
+    public float Speed;
 
 	// Use this for initialization
 	void Start () {
@@ -16,11 +16,11 @@ public class Patrol : MonoBehaviour {
         while (true)
         {
             float i = 0.0f;
-            float rate = speed / 10f;
+            float rate = Speed / 10f;
             while (i < 1.0f)
             {
                 i += Time.deltaTime * rate;
-                transform.position = Vector3.Lerp(startPos, endPos, i);
+                transform.position = Vector3.Lerp(StartPos, EndPos, i);
                 yield return null;
             }
 
@@ -28,7 +28,7 @@ public class Patrol : MonoBehaviour {
             while (i < 1.0f)
             {
                 i += Time.deltaTime * rate;
-                transform.position = Vector3.Lerp(endPos, startPos, i);
+                transform.position = Vector3.Lerp(EndPos, StartPos, i);
                 yield return null;
             }
         }

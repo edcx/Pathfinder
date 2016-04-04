@@ -7,70 +7,85 @@ namespace Assets.Pathfinder.Scripts
     public class PathManager : MonoBehaviour
     {
 
+        /// <summary>
+        /// Path request data type
+        /// New request should be sent to manager when searching for a path
+        /// </summary>
         struct PathRequest
         {
-            public Vector3 pathStart;
-            public Vector3 pathEnd;
-            public Action<Vector3[], bool> callback;
+            public Vector3 PathStart;
+            public Vector3 PathEnd;
+            public Action<Vector3[], bool> Callback;
 
-            public PathRequest(Vector3 _start, Vector3 _end, Action<Vector3[], bool> _callback)
+            public PathRequest(Vector3 start, Vector3 end, Action<Vector3[], bool> callback)
             {
-                pathStart = _start;
-                pathEnd = _end;
-                callback = _callback;
+                PathStart = start;
+                PathEnd = end;
+                Callback = callback;
             }
         }
 
-        Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
-        private PathRequest currentPathRequest;
+        Queue<PathRequest> _pathRequestQueue = new Queue<PathRequest>();
+        private PathRequest _currentPathRequest;
 
-        private bool isProcessingPath;
+        private bool _isProcessingPath;
 
-        private Pathfinder pathfinder;
+        private Pathfinder _pathfinder;
 
-        private static PathManager instance;
+        private static PathManager _instance;
 
         public PathManager()
         {
-            instance = this;
+            _instance = this;
 
         }
 
+        /// <summary>
+        /// Creates a path request and tries to process it
+        /// </summary>
+        /// <param name="pathStart"></param>
+        /// <param name="pathEnd"></param>
+        /// <param name="callback"></param>
         public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
         {
             PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback);
-            instance.pathRequestQueue.Enqueue(newRequest);
-            instance.TryProcessNext();
+            _instance._pathRequestQueue.Enqueue(newRequest);
+            _instance.TryProcessNext();
         }
 
         public static int ReturnQueuedRequestCount()
         {
-            return instance.pathRequestQueue.Count;
+            return _instance._pathRequestQueue.Count;
         }
         void TryProcessNext()
         {
-            if (!isProcessingPath && pathRequestQueue.Count > 0)
+            if (!_isProcessingPath && _pathRequestQueue.Count > 0)
             {
-                currentPathRequest = pathRequestQueue.Dequeue();
-                isProcessingPath = true;
-                pathfinder.StartFindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
+                _currentPathRequest = _pathRequestQueue.Dequeue();
+                _isProcessingPath = true;
+                _pathfinder.StartFindPath(_currentPathRequest.PathStart, _currentPathRequest.PathEnd);
                 //IEnumerator e = FindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
                 //while (e.MoveNext()){ }
 
             }
         }
+
+        /// <summary>
+        /// Pathinding Process finished. Send callback and try next request.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="success"></param>
         public void FinishedProcessingPath(Vector3[] path, bool success)
         {
-            currentPathRequest.callback(path, success);
-            isProcessingPath = false;
+            _currentPathRequest.Callback(path, success);
+            _isProcessingPath = false;
             TryProcessNext();
         }
 
         void Start () {
 
             //Create Pathfinder
-            //pathfinder = new Pathfinder();
-            pathfinder = GetComponent<Pathfinder>();
+            _pathfinder = GetComponent<Pathfinder>();
         }
 
         
