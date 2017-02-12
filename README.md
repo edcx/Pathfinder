@@ -4,7 +4,7 @@
 
 Pathfinding project is a plugin for Unity3D. It is based on A* algorithm for finding optimal path.
 
-It runs on a grid based system. It has penalty features. Currently it agents request path and listens pathfound event.
+It runs on a grid based system. It has penalty features. Currently, agents request path and listens for pathfound event.
 
 Desired features:
 
