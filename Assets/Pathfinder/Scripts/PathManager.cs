@@ -64,8 +64,7 @@ namespace Assets.Pathfinder.Scripts
                 _currentPathRequest = _pathRequestQueue.Dequeue();
                 _isProcessingPath = true;
                 _pathfinder.StartFindPath(_currentPathRequest.PathStart, _currentPathRequest.PathEnd);
-                //IEnumerator e = FindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
-                //while (e.MoveNext()){ }
+
 
             }
         }

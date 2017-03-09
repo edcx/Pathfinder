@@ -113,6 +113,7 @@ namespace Assets.Pathfinder.Scripts
                     int xIndex = node.X + x;
                     int yIndex = node.Y + y;
 
+                    // Check if neighbour is in borders
                     if (xIndex >= 0 && xIndex < Width && yIndex >= 0 && yIndex < Height)
                     {
                         if (Grid[xIndex, yIndex] == null) continue;
@@ -132,8 +133,6 @@ namespace Assets.Pathfinder.Scripts
 
         public override IPathable GetNode(Vector3 worldPosition)
         {
-            //float percentX = (worldPosition.x + gridWorldSize.x * .5f) / gridWorldSize.x;
-            //float percentY = (worldPosition.z + gridWorldSize.y * .5f) / gridWorldSize.y;
             float percentX = (worldPosition.x - StartPosition.x) / _gridWorldSize.x;
             float percentY = (worldPosition.z - StartPosition.z) / _gridWorldSize.y;
 

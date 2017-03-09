@@ -146,6 +146,10 @@ namespace Assets.Pathfinder.Scripts
             int distX = Mathf.Abs(nodeA.X - nodeB.X);
             int distY = Mathf.Abs(nodeA.Y - nodeB.Y);
 
+            //TODO: This works for grids! Make it more general
+            
+            // Horizontal and vertical movement cost 10
+            // Diagonal movement cost 14
             if (distX > distY)
                 return (int)((14 * distY + 10 * (distX - distY)) * CostMultiplier);
 
